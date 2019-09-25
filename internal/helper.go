@@ -13,3 +13,14 @@ func cross(A, B index) []index {
     }
     return result
 }
+
+// find is a helper function that takes a slice and looks for an element val in it.
+// If found it will return its key, otherwise it will return -1 and a bool of false.
+func find(slice []index, val index) (int, bool) {
+    for i, item := range slice {
+        if item == val {
+            return i, true
+        }
+    }
+    return -1, false
+}
