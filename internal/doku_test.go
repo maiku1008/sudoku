@@ -47,9 +47,13 @@ func TestCross(t *testing.T) {
     }
 }
 
-func TestSudoku(t *testing.T) {
+func TestNewSudoku(t *testing.T) {
     assert := assert.New(t)
-    s := NewSudoku()
+    const (
+        easypuzzle   = "4.....8.5.3..........7......2.....6.....8.4......1.......6.3.7.5..2.....1.4......"
+        solvedpuzzle = "417369825632158947958724316825437169791586432346912758289643571573291684164875293"
+    )
+    s := NewSudoku(easypuzzle)
 
     // Testing s.squares
     assert.Equal(len(s.squares), 81)
@@ -79,4 +83,18 @@ func TestSudoku(t *testing.T) {
     }
     assert.Equal(len(s.peers["C2"]), 20)
     // fmt.Println(s.peers["A2"])
+
+    // Testing s.grid
+    assert.Equal(s.grid["A1"], value("4"))
+    assert.Equal(s.grid["A7"], value("8"))
+    assert.Equal(s.grid["I9"], value("123456789"))
+
+    // Testing s.Display()
+    assert.Equal(len(s.Display()), 264)
+    fmt.Println(s.Display())
+
+    // Testing s.issolved()
+    assert.False(s.issolved())
+    assert.True(NewSudoku(solvedpuzzle).issolved())
+    fmt.Println(NewSudoku(solvedpuzzle).Display())
 }
