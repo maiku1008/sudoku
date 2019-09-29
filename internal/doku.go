@@ -17,6 +17,8 @@ type index string
 // All possible values for a square, ex. "123456789"
 type value string
 
+func (v value) remove(val value) value { return value(strings.Replace(string(v), string(val), "", -1)) }
+
 // Our full sudoku grid
 type grid map[index]value
 
@@ -124,6 +126,7 @@ func (s *Sudoku) populate() {
 }
 
 // Display pretty-prints the sudoku.
+// TODO: maybe display pretty or verbose according to flag
 func (s *Sudoku) Display() string {
     width := 1
     line := strings.Repeat("-", ((width+1)*3)+1)
@@ -142,12 +145,72 @@ func (s *Sudoku) Display() string {
         }
         value := string(s.grid[square])
         // If each square has more than one possible value,
-        // we print a dot
-        if value == "0" || value == "123456789" {
+        // we print a dot for readability
+        if value == "0" || len(value) > 1 {
             value = "."
         }
         grid += value + " "
     }
     grid += "\n"
     return grid
+}
+
+// Solve a sudoku by constraint propagation.
+// The sudoku may not be entirely solved with only this solution.
+func (s *Sudoku) Solve() error {
+    if err := s.constraintPropagation(); err != nil {
+        return err
+    }
+    if s.issolved() {
+        return nil
+    }
+    // TODO: try with search
+    return fmt.Errorf("Can't solve this")
+}
+
+func (s *Sudoku) constraintPropagation() error {
+    // tosolve := s.grid
+    // s.grid = make(grid)
+    // for _, square := range s.squares {
+    //     s.grid[square] = digits
+    // }
+
+    for i, value := range s.grid {
+        // If the value is zero / unknown, we don't want to assign it
+        if !strings.Contains(string(digits), string(value)) {
+            continue
+        }
+
+        fmt.Println(s.grid)
+        if err := s.assign(value, i); err != nil {
+            return err
+        }
+    }
+    return nil
+}
+
+// Eliminate all the other values except val from square
+func (s *Sudoku) assign(val value, i index) error {
+
+    return nil
+}
+
+// eliminate
+func (s *Sudoku) eliminate(val value, i index) error {
+
+    return nil
+}
+
+// Removes the given value from all peers of i
+// ## (1) If a square s is reduced to one value d2, then eliminate d2 from the peers.
+func (s *Sudoku) removeFromPeers(i index) error {
+
+    return nil
+}
+
+// singlePossibility
+// ## (2) If a unit u is reduced to only one place for a value d, then put it there.
+func (s *Sudoku) singlePossibility(val value, unit []index) (found bool, square index) {
+
+    return found, square
 }
