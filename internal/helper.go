@@ -1,5 +1,9 @@
 package doku
 
+import (
+    "strings"
+)
+
 // cross populates a slice of indexes with
 // the cross between A and B
 func cross(A, B index) []index {
@@ -23,4 +27,11 @@ func find(slice []index, val index) (int, bool) {
         }
     }
     return -1, false
+}
+
+// isvalid is a helper function that determins if a value is ok to be parsed
+// into our sudoku grid.
+func isvalid(v string) bool {
+    char := strings.Contains(string(digits), string(v))
+    return char || v == "." || v == "0"
 }

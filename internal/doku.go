@@ -32,6 +32,7 @@ type Sudoku struct {
     // for each square
     units map[index][][]index
     // A map of all peers for each square
+    // Peers are all the squares that share a unit
     peers map[index][]index
 }
 
@@ -45,14 +46,8 @@ func NewSudoku(customgrid string) *Sudoku {
     return &s
 }
 
-func isvalid(v string) bool {
-    char := strings.Contains(string(digits), string(v))
-    return char || v == "." || v == "0"
-}
-
 // Parse the sudoku from a string. The string
-// should have either 0s or '.' for empty fields,
-// everything else gets ignored
+// should have either 0s or '.' for empty fields.
 func (s *Sudoku) parse(customgrid string) {
     s.grid = make(map[index]value)
     i := 0
@@ -62,11 +57,7 @@ func (s *Sudoku) parse(customgrid string) {
             continue
         }
 
-        if val == value("0") || val == value(".") {
-            s.grid[s.squares[i]] = value("123456789")
-        } else {
-            s.grid[s.squares[i]] = val
-        }
+        s.grid[s.squares[i]] = val
         i++
     }
 }
@@ -126,9 +117,13 @@ func (s *Sudoku) populate() {
 }
 
 // Display pretty-prints the sudoku.
-// TODO: maybe display pretty or verbose according to flag
 func (s *Sudoku) Display() string {
-    width := 1
+    width := 0
+    for _, square := range s.squares {
+        if width < len(s.grid[square]) {
+            width = len(s.grid[square])
+        }
+    }
     line := strings.Repeat("-", ((width+1)*3)+1)
     line = fmt.Sprintf("%v+%v+%v", line, line, line)
     var grid string
@@ -144,10 +139,14 @@ func (s *Sudoku) Display() string {
             grid += "| "
         }
         value := string(s.grid[square])
-        // If each square has more than one possible value,
-        // we print a dot for readability
-        if value == "0" || len(value) > 1 {
+        // Print a dot instead of 0 for readability
+        if value == "0" {
             value = "."
+        }
+
+        // Center the value if needed
+        if len(value) < width {
+            value = fmt.Sprintf("%[1]*s", -width, fmt.Sprintf("%[1]*s", (width+len(value))/2, value))
         }
         grid += value + " "
     }
@@ -155,8 +154,7 @@ func (s *Sudoku) Display() string {
     return grid
 }
 
-// Solve a sudoku by constraint propagation.
-// The sudoku may not be entirely solved with only this solution.
+// Solve a sudoku by constraint propagation and search
 func (s *Sudoku) Solve() error {
     if err := s.constraintPropagation(); err != nil {
         return err
@@ -165,10 +163,76 @@ func (s *Sudoku) Solve() error {
     if s.issolved() {
         return nil
     }
-    // TODO: try with search
-    return fmt.Errorf("Can't solve this")
+    return s.search()
 }
 
+// Attempt to solve the sudoku with search (guessing)
+func (s *Sudoku) search() error {
+    // Choose the unfilled square with the fewest possibilities
+    min := s.minimumValues()
+    // Try through the possible values
+    for _, val := range s.grid[min] {
+        sc, err := s.try(value(val), min)
+        if err != nil {
+            continue
+        }
+        // If we got here, that means we have a solution.
+        *s = *sc
+        return nil
+    }
+    return fmt.Errorf("All possibilties lead nowhere")
+}
+
+// minimumValues gets the square that has the lowest
+// number of possible values
+func (s *Sudoku) minimumValues() index {
+    var minField index
+    minPoss := 10 // will never have more than 9 possibilities
+    for _, square := range s.squares {
+        numPoss := len(s.grid[square])
+        // we already know what's in there
+        if numPoss == 1 {
+            continue
+        }
+        if numPoss < minPoss {
+            minField = square
+            minPoss = numPoss
+        }
+    }
+    return minField
+}
+
+// Try to set a value at the given square, returning a copy of
+// the sudoku with the tried value filled in, or an error if
+// a contradiction has been detected, making this move invalid.
+func (s *Sudoku) try(val value, i index) (*Sudoku, error) {
+    // create a copy
+    sc := s.copy()
+    if err := sc.assign(val, i); err != nil {
+        return nil, err
+    }
+    if !sc.issolved() {
+        if err := sc.search(); err != nil {
+            return nil, err
+        }
+    }
+    return sc, nil
+}
+
+// Creates a copy of the Sudoku, including a deep-copy
+// of the main sudoku grid. We use this when doing guesswork
+// that could be wrong.
+func (s Sudoku) copy() *Sudoku {
+    newGrid := make(grid)
+    for k, v := range s.grid {
+        newGrid[k] = v
+    }
+    s.grid = newGrid
+    return &s
+}
+
+// Attempt to solve the sudoku through constraint propagation.
+// Harder puzzles may not be solved by this method alone.
 func (s *Sudoku) constraintPropagation() error {
     tosolve := s.grid
     s.grid = make(grid)
@@ -177,12 +241,11 @@ func (s *Sudoku) constraintPropagation() error {
     }
 
     for i, value := range tosolve {
-        // If the value is zero / unknown, we don't want to assign it
-        if !strings.Contains(string(digits), string(value)) {
+        ok := strings.Contains(string(digits), string(value))
+        if !ok {
             continue
         }
 
-        // fmt.Println(s.grid)
         if err := s.assign(value, i); err != nil {
             return err
         }
@@ -190,7 +253,7 @@ func (s *Sudoku) constraintPropagation() error {
     return nil
 }
 
-// assign doesn't really assign values,
+// Assign doesn't really assign values,
 // rather it eliminates all the other values
 // except val from square i
 func (s *Sudoku) assign(val value, i index) error {
@@ -205,7 +268,11 @@ func (s *Sudoku) assign(val value, i index) error {
     return nil
 }
 
+// Eliminate a value from an index, and propagate.
+// This is the main block of the constraint propagation method
+// of solving.
 func (s *Sudoku) eliminate(val value, i index) error {
+
     // check if we already removed the value
     removed := strings.Contains(string(s.grid[i]), string(val))
     if !removed {
@@ -213,14 +280,12 @@ func (s *Sudoku) eliminate(val value, i index) error {
     }
 
     // Remove the value val from the square i
-    if len(s.grid[i]) > 1 {
-        s.grid[i] = s.grid[i].remove(val)
-    }
+    s.grid[i] = s.grid[i].remove(val)
 
     // Check the length of values in the square i
     switch len(s.grid[i]) {
     case 0:
-        return fmt.Errorf("removed last value from field %v", i)
+        return fmt.Errorf("Contradiction: removed last value from field %v", i)
     case 1:
         // If a square i is reduced to one value,
         // then eliminate it from its peers.
@@ -234,7 +299,7 @@ func (s *Sudoku) eliminate(val value, i index) error {
         // for a value v, then put it there.
         found, place := s.singlePossibility(val, unit)
         if place == "" {
-            return fmt.Errorf("no place for value %v is left", val)
+            return fmt.Errorf("Contradiction: no place for value %v is left", val)
         }
         if !found {
             continue
@@ -247,7 +312,7 @@ func (s *Sudoku) eliminate(val value, i index) error {
     return nil
 }
 
-// Removes the value of i from all its peers.
+// Removes the value of square i from all its peers.
 func (s *Sudoku) removeFromPeers(i index) error {
     for _, peer := range s.peers[i] {
         if err := s.eliminate(s.grid[i], peer); err != nil {
@@ -258,13 +323,12 @@ func (s *Sudoku) removeFromPeers(i index) error {
 }
 
 // Returns true when the given value only has one possibility
-// in the the square's units, and returns the index.
-// If there is no possibility left, the index is empty string.
+// in the the square's units, and returns its index.
+// If there is no possibility left, the index is an mpty string.
 func (s *Sudoku) singlePossibility(val value, unit []index) (found bool, i index) {
     for _, u := range unit {
         ok := strings.Contains(string(s.grid[u]), string(val))
         if ok {
-            // second possibility
             if found {
                 return false, i
             }

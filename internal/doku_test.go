@@ -6,6 +6,29 @@ import (
     "testing"
 )
 
+const (
+    easypuzzle       = "003020600900305001001806400008102900700000008006708200002609500800203009005010300"
+    mediumpuzzle     = "400000805030000000000700000020000060000080400000010000000603070500200000104000000"
+    hardpuzzle       = "150300000070040200004072000008000000000900108010080790000003800000000000600007423"
+    impossiblepuzzle = "400000000000000000000000000000000000000000000000000000000000000000000000000000000"
+    solvedpuzzle     = "417369825632158947958724316825437169791586432346912758289643571573291684164875293"
+)
+
+var (
+    c2units = [][]index{
+        {"A1", "A2", "A3", "B1", "B2", "B3", "C1", "C2", "C3"},
+        {"A2", "B2", "C2", "D2", "E2", "F2", "G2", "H2", "I2"},
+        {"C1", "C2", "C3", "C4", "C5", "C6", "C7", "C8", "C9"},
+    }
+    c2peers = []index{
+        "A1", "A2", "A3", "B1",
+        "B2", "B3", "C1", "C3",
+        "D2", "E2", "F2", "G2",
+        "H2", "I2", "C4", "C5",
+        "C6", "C7", "C8", "C9",
+    }
+)
+
 func TestRemove(t *testing.T) {
     assert := assert.New(t)
 
@@ -55,32 +78,9 @@ func TestCross(t *testing.T) {
     }
 }
 
-const (
-    impossible         = "400000000000000000000000000000000000000000000000000000000000000000000000000000000"
-    puzzle             = "4.....8.5.3..........7......2.....6.....8.4......1.......6.3.7.5..2.....1.4......"
-    easypuzzle         = "003020600900305001001806400008102900700000008006708200002609500800203009005010300"
-    solvedpuzzle       = "417369825632158947958724316825437169791586432346912758289643571573291684164875293"
-    nearlysolvedpuzzle = "417369825632158947958724316825437109791586432346912758289643571073291684164875293"
-)
-
-var (
-    c2units = [][]index{
-        {"A1", "A2", "A3", "B1", "B2", "B3", "C1", "C2", "C3"},
-        {"A2", "B2", "C2", "D2", "E2", "F2", "G2", "H2", "I2"},
-        {"C1", "C2", "C3", "C4", "C5", "C6", "C7", "C8", "C9"},
-    }
-    c2peers = []index{
-        "A1", "A2", "A3", "B1",
-        "B2", "B3", "C1", "C3",
-        "D2", "E2", "F2", "G2",
-        "H2", "I2", "C4", "C5",
-        "C6", "C7", "C8", "C9",
-    }
-)
-
 func TestNewSudoku(t *testing.T) {
     assert := assert.New(t)
-    s := NewSudoku(puzzle)
+    s := NewSudoku(mediumpuzzle)
 
     // Testing s.squares
     assert.Equal(len(s.squares), 81)
@@ -101,9 +101,7 @@ func TestNewSudoku(t *testing.T) {
 
     // Testing s.grid
     assert.Equal(s.grid["A1"], value("4"))
-    assert.Equal(s.grid["A2"], value("123456789"))
-    assert.Equal(s.grid["A7"], value("8"))
-    assert.Equal(s.grid["I9"], value("123456789"))
+    assert.Equal(s.grid["A2"], value("0"))
 
     // Testing s.Display()
     assert.Equal(len(s.Display()), 264)
@@ -112,64 +110,48 @@ func TestNewSudoku(t *testing.T) {
     fmt.Println(s.Display())
 
     // Testing s.issolved()
-    assert.False(s.issolved())
     assert.True(NewSudoku(solvedpuzzle).issolved())
 
     fmt.Println("Solved Puzzle:")
     fmt.Println(NewSudoku(solvedpuzzle).Display())
 }
 
-func TestAssign(t *testing.T) {
-    assert := assert.New(t)
-    s := NewSudoku(impossible)
-
-    err := s.assign(value("3"), index("A2"))
-
-    assert.Equal(s.grid["A2"], value("3"))
-    assert.Nil(err)
-}
-
 func TestRemoveFromPeers(t *testing.T) {
     assert := assert.New(t)
 
-    s := NewSudoku(impossible)
+    s := NewSudoku(impossiblepuzzle)
 
-    err := s.removeFromPeers(index("A1"))
-    _ = err
+    // for _, square := range s.squares {
+    //     fmt.Println(len(s.grid[square]))
+    // }
+
+    err := s.removeFromPeers(index("A1")) //s.grid["A1"] == value("4")
+    assert.Nil(err)
 
     for _, peer := range s.peers["A1"] {
         assert.Equal(s.grid[peer], value("12356789"))
     }
 }
 
-func TestSinglePossibility(t *testing.T) {
+func TestSolve(t *testing.T) {
     assert := assert.New(t)
 
-    s := NewSudoku(impossible)
-    // Prep the grid so that all squares in C4's units don't have
-    // the value "9", except for C4.
-    for _, unit := range s.units["C4"] {
-        for _, u := range unit {
-            if u != index("C4") {
-                s.grid[u] = s.grid[u].remove(value("9"))
-            }
-        }
+    var puzzles = []struct {
+        puzzleToSolve string
+    }{
+        {easypuzzle},
+        {mediumpuzzle},
+        {hardpuzzle},
+        {impossiblepuzzle},
     }
 
-    found, i := s.singlePossibility(value("9"), s.units["C4"][0])
-
-    assert.True(found)
-    assert.Equal(i, index("C4"))
-}
-
-func TestConstraintPropagation(t *testing.T) {
-    assert := assert.New(t)
-    s := NewSudoku(nearlysolvedpuzzle)
-    fmt.Println(s.Display())
-    err := s.Solve()
-    _ = err
-    fmt.Println(s.Display())
-
-    assert.True(s.issolved())
-
+    for _, p := range puzzles {
+        s := NewSudoku(p.puzzleToSolve)
+        err := s.Solve()
+        fmt.Println(p.puzzleToSolve)
+        fmt.Println("")
+        fmt.Println(s.Display())
+        assert.True(s.issolved())
+        assert.Nil(err)
+    }
 }
