@@ -161,6 +161,7 @@ func (s *Sudoku) Solve() error {
     if err := s.constraintPropagation(); err != nil {
         return err
     }
+
     if s.issolved() {
         return nil
     }
@@ -169,19 +170,19 @@ func (s *Sudoku) Solve() error {
 }
 
 func (s *Sudoku) constraintPropagation() error {
-    // tosolve := s.grid
-    // s.grid = make(grid)
-    // for _, square := range s.squares {
-    //     s.grid[square] = digits
-    // }
+    tosolve := s.grid
+    s.grid = make(grid)
+    for _, square := range s.squares {
+        s.grid[square] = digits
+    }
 
-    for i, value := range s.grid {
+    for i, value := range tosolve {
         // If the value is zero / unknown, we don't want to assign it
         if !strings.Contains(string(digits), string(value)) {
             continue
         }
 
-        fmt.Println(s.grid)
+        // fmt.Println(s.grid)
         if err := s.assign(value, i); err != nil {
             return err
         }
@@ -189,28 +190,87 @@ func (s *Sudoku) constraintPropagation() error {
     return nil
 }
 
-// Eliminate all the other values except val from square
+// assign doesn't really assign values,
+// rather it eliminates all the other values
+// except val from square i
 func (s *Sudoku) assign(val value, i index) error {
-
+    // Create a string of values to remove
+    toremove := s.grid[i].remove(val)
+    for _, rm := range toremove {
+        // remove the values
+        if err := s.eliminate(value(rm), i); err != nil {
+            return err
+        }
+    }
     return nil
 }
 
-// eliminate
 func (s *Sudoku) eliminate(val value, i index) error {
+    // check if we already removed the value
+    removed := strings.Contains(string(s.grid[i]), string(val))
+    if !removed {
+        return nil
+    }
+
+    // Remove the value val from the square i
+    if len(s.grid[i]) > 1 {
+        s.grid[i] = s.grid[i].remove(val)
+    }
+
+    // Check the length of values in the square i
+    switch len(s.grid[i]) {
+    case 0:
+        return fmt.Errorf("removed last value from field %v", i)
+    case 1:
+        // If a square i is reduced to one value,
+        // then eliminate it from its peers.
+        if err := s.removeFromPeers(i); err != nil {
+            return err
+        }
+    }
+
+    for _, unit := range s.units[i] {
+        // If a unit is reduced to only one place
+        // for a value v, then put it there.
+        found, place := s.singlePossibility(val, unit)
+        if place == "" {
+            return fmt.Errorf("no place for value %v is left", val)
+        }
+        if !found {
+            continue
+        }
+        if err := s.assign(val, place); err != nil {
+            return err
+        }
+    }
 
     return nil
 }
 
-// Removes the given value from all peers of i
-// ## (1) If a square s is reduced to one value d2, then eliminate d2 from the peers.
+// Removes the value of i from all its peers.
 func (s *Sudoku) removeFromPeers(i index) error {
-
+    for _, peer := range s.peers[i] {
+        if err := s.eliminate(s.grid[i], peer); err != nil {
+            return err
+        }
+    }
     return nil
 }
 
-// singlePossibility
-// ## (2) If a unit u is reduced to only one place for a value d, then put it there.
-func (s *Sudoku) singlePossibility(val value, unit []index) (found bool, square index) {
-
-    return found, square
+// Returns true when the given value only has one possibility
+// in the the square's units, and returns the index.
+// If there is no possibility left, the index is empty string.
+func (s *Sudoku) singlePossibility(val value, unit []index) (found bool, i index) {
+    for _, u := range unit {
+        ok := strings.Contains(string(s.grid[u]), string(val))
+        if ok {
+            // second possibility
+            if found {
+                return false, i
+            }
+            found = true
+            i = u
+        }
+    }
+    return found, i
 }

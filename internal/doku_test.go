@@ -56,38 +56,43 @@ func TestCross(t *testing.T) {
 }
 
 const (
-    puzzle       = "4.....8.5.3..........7......2.....6.....8.4......1.......6.3.7.5..2.....1.4......"
-    easypuzzle   = "003020600900305001001806400008102900700000008006708200002609500800203009005010300"
-    solvedpuzzle = "417369825632158947958724316825437169791586432346912758289643571573291684164875293"
+    impossible         = "400000000000000000000000000000000000000000000000000000000000000000000000000000000"
+    puzzle             = "4.....8.5.3..........7......2.....6.....8.4......1.......6.3.7.5..2.....1.4......"
+    easypuzzle         = "003020600900305001001806400008102900700000008006708200002609500800203009005010300"
+    solvedpuzzle       = "417369825632158947958724316825437169791586432346912758289643571573291684164875293"
+    nearlysolvedpuzzle = "417369825632158947958724316825437109791586432346912758289643571073291684164875293"
 )
 
-func TestNewSudoku(t *testing.T) {
-    assert := assert.New(t)
-    s := NewSudoku(easypuzzle)
-
-    // Testing s.squares
-    assert.Equal(len(s.squares), 81)
-    // fmt.Println("squares: ", s.squares)
-
-    // Testing s.units
-    c2units := [][]index{
+var (
+    c2units = [][]index{
         {"A1", "A2", "A3", "B1", "B2", "B3", "C1", "C2", "C3"},
         {"A2", "B2", "C2", "D2", "E2", "F2", "G2", "H2", "I2"},
         {"C1", "C2", "C3", "C4", "C5", "C6", "C7", "C8", "C9"},
     }
-    for _, u := range c2units {
-        assert.Contains(s.units["C2"], u)
-    }
-    // fmt.Println(s.units["A2"])
-
-    // Testing s.peers
-    c2peers := []index{
+    c2peers = []index{
         "A1", "A2", "A3", "B1",
         "B2", "B3", "C1", "C3",
         "D2", "E2", "F2", "G2",
         "H2", "I2", "C4", "C5",
         "C6", "C7", "C8", "C9",
     }
+)
+
+func TestNewSudoku(t *testing.T) {
+    assert := assert.New(t)
+    s := NewSudoku(puzzle)
+
+    // Testing s.squares
+    assert.Equal(len(s.squares), 81)
+    // fmt.Println("squares: ", s.squares)
+
+    // Testing s.units
+    for _, u := range c2units {
+        assert.Contains(s.units["C2"], u)
+    }
+    // fmt.Println(s.units["A2"])
+
+    // Testing s.peers
     for _, p := range c2peers {
         assert.Contains(s.peers["C2"], p)
     }
@@ -116,38 +121,55 @@ func TestNewSudoku(t *testing.T) {
 
 func TestAssign(t *testing.T) {
     assert := assert.New(t)
+    s := NewSudoku(impossible)
 
-    assert.False(true)
-}
+    err := s.assign(value("3"), index("A2"))
 
-func TestEliminate(t *testing.T) {
-    assert := assert.New(t)
-
-    assert.False(true)
+    assert.Equal(s.grid["A2"], value("3"))
+    assert.Nil(err)
 }
 
 func TestRemoveFromPeers(t *testing.T) {
     assert := assert.New(t)
 
-    assert.False(true)
+    s := NewSudoku(impossible)
+
+    err := s.removeFromPeers(index("A1"))
+    _ = err
+
+    for _, peer := range s.peers["A1"] {
+        assert.Equal(s.grid[peer], value("12356789"))
+    }
 }
 
 func TestSinglePossibility(t *testing.T) {
     assert := assert.New(t)
 
-    assert.False(true)
+    s := NewSudoku(impossible)
+    // Prep the grid so that all squares in C4's units don't have
+    // the value "9", except for C4.
+    for _, unit := range s.units["C4"] {
+        for _, u := range unit {
+            if u != index("C4") {
+                s.grid[u] = s.grid[u].remove(value("9"))
+            }
+        }
+    }
+
+    found, i := s.singlePossibility(value("9"), s.units["C4"][0])
+
+    assert.True(found)
+    assert.Equal(i, index("C4"))
 }
 
-// TODO: Broken
 func TestConstraintPropagation(t *testing.T) {
     assert := assert.New(t)
-    s := NewSudoku(easypuzzle)
+    s := NewSudoku(nearlysolvedpuzzle)
     fmt.Println(s.Display())
     err := s.Solve()
-    fmt.Println(err)
+    _ = err
     fmt.Println(s.Display())
 
     assert.True(s.issolved())
-    // fmt.Println(s.grid)
 
 }
