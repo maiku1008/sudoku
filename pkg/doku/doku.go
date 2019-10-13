@@ -17,7 +17,13 @@ type index string
 // All possible values for a square, ex. "123456789"
 type value string
 
-func (v value) remove(val value) value { return value(strings.Replace(string(v), string(val), "", -1)) }
+func (v value) contains(val value) bool {
+    return strings.Contains(string(v), string(val))
+}
+
+func (v value) remove(val value) value {
+    return value(strings.Replace(string(v), string(val), "", -1))
+}
 
 // Our full sudoku grid
 type grid map[index]value
@@ -57,12 +63,6 @@ func (s *Sudoku) parse(grid string) {
             continue
         }
 
-        // if val == value("0") || val == value(".") {
-        //     s.grid[s.squares[i]] = value("123456789")
-        // } else {
-        //     s.grid[s.squares[i]] = val
-        // }
-        // TODO: This doesnt assign the whole range of values
         s.grid[s.squares[i]] = val
         i++
     }
@@ -71,7 +71,7 @@ func (s *Sudoku) parse(grid string) {
 // A helper function that returns true if the Sudoku is solved
 func (s *Sudoku) isSolved() bool {
     for _, square := range s.grid {
-        if len(square) > 1 {
+        if len(square) > 1 || !digits.contains(square) {
             return false
         }
     }
@@ -240,15 +240,21 @@ func (s Sudoku) copy() *Sudoku {
 // Attempt to solve the sudoku through constraint propagation.
 // Harder puzzles may not be solved by this method alone.
 func (s *Sudoku) constraintPropagation() error {
+    // Store the values of the grid we want to solve
     tosolve := s.grid
+
+    // Initialize the sudoku with a new grid.
+    // Each Square will have value("123456789") as its value
     s.grid = make(grid)
     for _, square := range s.squares {
         s.grid[square] = digits
     }
 
+    // Loop to start eliminating values from our sudoku grid.
+    // We do this by comparing the new grid with the one stored
+    // in tosolve
     for i, value := range tosolve {
-        ok := strings.Contains(string(digits), string(value))
-        if !ok {
+        if !digits.contains(value) {
             continue
         }
 
@@ -280,8 +286,7 @@ func (s *Sudoku) assign(val value, i index) error {
 func (s *Sudoku) eliminate(val value, i index) error {
 
     // check if we already removed the value
-    removed := strings.Contains(string(s.grid[i]), string(val))
-    if !removed {
+    if !s.grid[i].contains(val) {
         return nil
     }
 
@@ -333,8 +338,7 @@ func (s *Sudoku) removeFromPeers(i index) error {
 // If there is no possibility left, the index is an mpty string.
 func (s *Sudoku) singlePossibility(val value, unit []index) (found bool, i index) {
     for _, u := range unit {
-        ok := strings.Contains(string(s.grid[u]), string(val))
-        if ok {
+        if s.grid[u].contains(val) {
             if found {
                 return false, i
             }

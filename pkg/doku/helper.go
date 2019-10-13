@@ -4,7 +4,6 @@ import (
     "strings"
 )
 
-// TODO: use string type instead
 // cross populates a slice of indexes with
 // the cross between A and B
 func cross(A, B index) []index {
@@ -19,7 +18,6 @@ func cross(A, B index) []index {
     return result
 }
 
-// TODO: use string type instead
 // find is a helper function that takes a slice and looks for an element val in it.
 // If found it will return its key, otherwise it will return -1 and a bool of false.
 func find(slice []index, val index) (int, bool) {
