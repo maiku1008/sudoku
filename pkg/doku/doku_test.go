@@ -84,7 +84,6 @@ func TestNewSudoku(t *testing.T) {
 
     // Testing s.squares
     assert.Equal(len(s.squares), 81)
-    // fmt.Println("squares: ", s.squares)
 
     // Testing s.units
     for _, u := range c2units {
@@ -100,7 +99,6 @@ func TestNewSudoku(t *testing.T) {
     // Testing s.grid
     assert.Equal(s.grid["A1"], value("4"))
     assert.Equal(s.grid["A2"], value("0"))
-
 }
 
 // Test if the Sudoku grid is correctly parsed
