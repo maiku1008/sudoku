@@ -90,30 +90,30 @@ func TestNewSudoku(t *testing.T) {
     for _, u := range c2units {
         assert.Contains(s.units["C2"], u)
     }
-    // fmt.Println(s.units["A2"])
 
     // Testing s.peers
     for _, p := range c2peers {
         assert.Contains(s.peers["C2"], p)
     }
     assert.Equal(len(s.peers["C2"]), 20)
-    // fmt.Println(s.peers["A2"])
 
     // Testing s.grid
     assert.Equal(s.grid["A1"], value("4"))
     assert.Equal(s.grid["A2"], value("0"))
 
-    // Testing s.Display()
-    assert.Equal(len(s.Display()), 264)
+}
 
-    fmt.Println("Initial Puzzle:")
-    fmt.Println(s.Display())
+// Test if the Sudoku grid is correctly parsed
+// and if the issolved() function is actually useful
+func TestIsSolved(t *testing.T) {
+    assert := assert.New(t)
 
-    // Testing s.issolved()
-    assert.True(NewSudoku(solvedpuzzle).issolved())
+    impossible := NewSudoku(impossiblepuzzle)
+    // TODO: Broken, this returns true
+    assert.False(impossible.isSolved())
+    fmt.Println(impossible.Display())
 
-    fmt.Println("Solved Puzzle:")
-    fmt.Println(NewSudoku(solvedpuzzle).Display())
+    assert.True(NewSudoku(solvedpuzzle).isSolved())
 }
 
 // TODO: Broken. len of empty squares is 1 but should be 9
@@ -125,9 +125,6 @@ func TestRemoveFromPeers(t *testing.T) {
     for _, square := range s.squares {
         fmt.Println(len(s.grid[square]))
     }
-
-    // TODO: Broken. This returns true.
-    fmt.Println(s.issolved())
 
     err := s.removeFromPeers(index("A1")) // 4
     assert.Nil(err)
@@ -155,7 +152,7 @@ func TestSolve(t *testing.T) {
         fmt.Println(p.puzzleToSolve)
         fmt.Println("")
         fmt.Println(s.Display())
-        assert.True(s.issolved())
+        assert.True(s.isSolved())
         assert.Nil(err)
     }
 }

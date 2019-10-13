@@ -37,21 +37,21 @@ type Sudoku struct {
 }
 
 // NewSudoku creates a new sudoku object given a grid string
-func NewSudoku(customgrid string) *Sudoku {
+func NewSudoku(grid string) *Sudoku {
     s := Sudoku{
         squares: cross(index("ABCDEFGHI"), index("123456789")),
     }
     s.populate()
-    s.parse(customgrid)
+    s.parse(grid)
     return &s
 }
 
 // Parse the sudoku from a string. The string
 // should have either 0s or . for empty fields.
-func (s *Sudoku) parse(customgrid string) {
+func (s *Sudoku) parse(grid string) {
     s.grid = make(map[index]value)
     i := 0
-    for _, v := range customgrid {
+    for _, v := range grid {
         val := value(v)
         if ok := isvalid(string(v)); !ok {
             continue
@@ -69,7 +69,7 @@ func (s *Sudoku) parse(customgrid string) {
 }
 
 // A helper function that returns true if the Sudoku is solved
-func (s *Sudoku) issolved() bool {
+func (s *Sudoku) isSolved() bool {
     for _, square := range s.grid {
         if len(square) > 1 {
             return false
@@ -166,7 +166,7 @@ func (s *Sudoku) Solve() error {
         return err
     }
 
-    if s.issolved() {
+    if s.isSolved() {
         return nil
     }
     return s.search()
@@ -217,7 +217,7 @@ func (s *Sudoku) try(val value, i index) (*Sudoku, error) {
     if err := sc.assign(val, i); err != nil {
         return nil, err
     }
-    if !sc.issolved() {
+    if !sc.isSolved() {
         if err := sc.search(); err != nil {
             return nil, err
         }
