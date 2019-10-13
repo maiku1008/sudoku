@@ -116,16 +116,20 @@ func TestNewSudoku(t *testing.T) {
     fmt.Println(NewSudoku(solvedpuzzle).Display())
 }
 
+// TODO: Broken. len of empty squares is 1 but should be 9
 func TestRemoveFromPeers(t *testing.T) {
     assert := assert.New(t)
 
     s := NewSudoku(impossiblepuzzle)
 
-    // for _, square := range s.squares {
-    //     fmt.Println(len(s.grid[square]))
-    // }
+    for _, square := range s.squares {
+        fmt.Println(len(s.grid[square]))
+    }
 
-    err := s.removeFromPeers(index("A1")) //s.grid["A1"] == value("4")
+    // TODO: Broken. This returns true.
+    fmt.Println(s.issolved())
+
+    err := s.removeFromPeers(index("A1")) // 4
     assert.Nil(err)
 
     for _, peer := range s.peers["A1"] {

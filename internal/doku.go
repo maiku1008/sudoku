@@ -47,7 +47,7 @@ func NewSudoku(customgrid string) *Sudoku {
 }
 
 // Parse the sudoku from a string. The string
-// should have either 0s or '.' for empty fields.
+// should have either 0s or . for empty fields.
 func (s *Sudoku) parse(customgrid string) {
     s.grid = make(map[index]value)
     i := 0
@@ -57,6 +57,12 @@ func (s *Sudoku) parse(customgrid string) {
             continue
         }
 
+        // if val == value("0") || val == value(".") {
+        //     s.grid[s.squares[i]] = value("123456789")
+        // } else {
+        //     s.grid[s.squares[i]] = val
+        // }
+        // TODO: This doesnt assign the whole range of values
         s.grid[s.squares[i]] = val
         i++
     }
