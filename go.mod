@@ -1,4 +1,4 @@
-module github/sk1u/doku
+module github.com/sk1u/doku
 
 go 1.13
 
