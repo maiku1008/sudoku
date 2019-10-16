@@ -1,12 +1,21 @@
 package doku
 
 import (
+    "encoding/json"
     "fmt"
+    "io/ioutil"
     "net/http"
 )
 
-// TODO: remove this
-const mediumpuzzle = "400000805030000000000700000020000060000080400000010000000603070500200000104000000"
+const puzzle = "400000805030000000000700000020000060000080400000010000000603070500200000104000000"
+
+// TODO: Figure out better storage, like mongodb
+var sudokuStorage = make(map[string]*Sudoku)
+
+// UserGrid is used to map data for grid
+type UserGrid struct {
+    Grid string `json:"grid"`
+}
 
 // NewSudokuHandler initializes a sudokuHandler
 func NewSudokuHandler() http.Handler {
@@ -15,9 +24,23 @@ func NewSudokuHandler() http.Handler {
 
 // sudokuHandler ...
 type sudokuHandler struct {
+    grid string
 }
 
 func (h sudokuHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+
+    body, _ := ioutil.ReadAll(r.Body)
+
+    var usergrid UserGrid
+    err := json.Unmarshal(body, &usergrid)
+    if err != nil {
+        fmt.Println(err)
+    }
+
+    h.grid = usergrid.Grid
+    s := NewSudoku(h.grid)
+
+    sudokuStorage[h.grid] = s
 }
 
 // NewDisplayHandler initializes a displayHandler
@@ -30,7 +53,8 @@ type displayHandler struct {
 }
 
 func (h displayHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-    s := NewSudoku(mediumpuzzle)
+    s := sudokuStorage[puzzle]
+    fmt.Fprintf(w, s.Display())
     fmt.Println(s.Display())
 }
 
@@ -44,7 +68,7 @@ type solveHandler struct {
 }
 
 func (h solveHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-    s := NewSudoku(mediumpuzzle)
+    s := sudokuStorage[puzzle]
     s.Solve()
 }
 
@@ -58,6 +82,7 @@ type stateHandler struct {
 }
 
 func (h stateHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-    s := NewSudoku(mediumpuzzle)
+    s := sudokuStorage[puzzle]
+    fmt.Fprintf(w, "%t", s.isSolved())
     fmt.Println(s.isSolved())
 }
