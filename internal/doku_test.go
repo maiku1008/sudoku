@@ -10,8 +10,9 @@ const (
     easypuzzle       = "003020600900305001001806400008102900700000008006708200002609500800203009005010300"
     mediumpuzzle     = "400000805030000000000700000020000060000080400000010000000603070500200000104000000"
     hardpuzzle       = "150300000070040200004072000008000000000900108010080790000003800000000000600007423"
-    impossiblepuzzle = "400000000000000000000000000000000000000000000000000000000000000000000000000000000"
+    veryhardpuzzle   = "400000000000000000000000000000000000000000000000000000000000000000000000000000000"
     solvedpuzzle     = "417369825632158947958724316825437169791586432346912758289643571573291684164875293"
+    impossiblepuzzle = "777777777777777777777777777777777777777777777777777777777777777777777777777777777"
 )
 
 var (
@@ -111,7 +112,7 @@ func TestNewSudoku(t *testing.T) {
 func TestIsSolved(t *testing.T) {
     assert := assert.New(t)
 
-    assert.False(NewSudoku(impossiblepuzzle).isSolved())
+    assert.False(NewSudoku(veryhardpuzzle).isSolved())
     assert.True(NewSudoku(solvedpuzzle).isSolved())
 }
 
@@ -124,7 +125,7 @@ func TestSolve(t *testing.T) {
         {easypuzzle},
         {mediumpuzzle},
         {hardpuzzle},
-        {impossiblepuzzle},
+        {veryhardpuzzle},
     }
 
     for _, p := range puzzles {
@@ -136,4 +137,12 @@ func TestSolve(t *testing.T) {
         assert.True(s.isSolved())
         assert.Nil(err)
     }
+
+    s := NewSudoku(impossiblepuzzle)
+    err := s.Solve()
+    fmt.Println(impossiblepuzzle)
+    fmt.Println("")
+    fmt.Println(s.Display())
+
+    assert.Contains(err.Error(), "Contradiction: ")
 }
