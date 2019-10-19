@@ -19,45 +19,41 @@ func Mux() *http.ServeMux {
     return mux
 }
 
+// A struct for testing the different endpoints
+var endpointTests = []struct {
+    method   string
+    endpoint string
+    respcode int
+}{
+    {"POST", "/display", 200},
+    {"POST", "/state", 201},
+    {"POST", "/solve", 200},
+    {"POST", "/display", 200},
+    {"POST", "/state", 201},
+}
+
 func TestEndPoints(t *testing.T) {
     assert := assert.New(t)
 
-    puzzleJSON := "{\"grid\": \"400000805030000000000700000020000060000080400000010000000603070500200000104000000\"}"
+    puzzle1 := "{\"grid\": \"400000805030000000000700000020000060000080400000010000000603070500200000104000000\"}"
+    b := bytes.NewBuffer([]byte(puzzle1))
 
-    fmt.Println("POST /newsudoku", puzzleJSON)
-    request, _ := http.NewRequest("POST", "/newsudoku", bytes.NewBuffer([]byte(puzzleJSON)))
+    fmt.Println("POST /newsudoku", puzzle1)
+    request, _ := http.NewRequest("POST", "/newsudoku", b)
     response := httptest.NewRecorder()
     Mux().ServeHTTP(response, request)
-    assert.Equal(200, response.Code)
+    assert.Equal(201, response.Code)
 
-    fmt.Println("GET /display")
-    request, _ = http.NewRequest("GET", "/display", nil)
-    response = httptest.NewRecorder()
-    Mux().ServeHTTP(response, request)
-    assert.Equal(200, response.Code)
+    requestBody := response.Body.String()
 
-    fmt.Println("GET /state")
-    request, _ = http.NewRequest("GET", "/state", nil)
-    response = httptest.NewRecorder()
-    Mux().ServeHTTP(response, request)
-    assert.Equal(200, response.Code)
+    for _, et := range endpointTests {
+        JSON := bytes.NewBuffer([]byte(requestBody))
 
-    fmt.Println("GET /solve")
-    request, _ = http.NewRequest("GET", "/solve", nil)
-    response = httptest.NewRecorder()
-    Mux().ServeHTTP(response, request)
-    assert.Equal(200, response.Code)
-    // assert.Equal(response.Body.String(), "intro=\"1\"\n")
-
-    fmt.Println("GET /display")
-    request, _ = http.NewRequest("GET", "/display", nil)
-    response = httptest.NewRecorder()
-    Mux().ServeHTTP(response, request)
-    assert.Equal(200, response.Code)
-
-    fmt.Println("GET /state")
-    request, _ = http.NewRequest("GET", "/state", nil)
-    response = httptest.NewRecorder()
-    Mux().ServeHTTP(response, request)
-    assert.Equal(200, response.Code)
+        fmt.Println("Request:\n", et.method, et.endpoint, JSON)
+        request, _ = http.NewRequest(et.method, et.endpoint, JSON)
+        response = httptest.NewRecorder()
+        Mux().ServeHTTP(response, request)
+        assert.Equal(et.respcode, response.Code)
+        fmt.Println("Response:\n", response.Body)
+    }
 }

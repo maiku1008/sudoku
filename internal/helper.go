@@ -1,6 +1,7 @@
 package doku
 
 import (
+    "math/rand"
     "strings"
 )
 
@@ -34,4 +35,20 @@ func find(slice []index, val index) (int, bool) {
 func isvalid(v string) bool {
     char := strings.Contains(string(digits), string(v))
     return char || v == "." || v == "0"
+}
+
+// TODO: Write test for this
+// Returns an int >= min, < max
+func randomInt(min, max int) int {
+    return min + rand.Intn(max-min)
+}
+
+// TODO: Write test for this
+// Generate a random string of A-Z chars with len = l
+func randomString(len int) string {
+    bytes := make([]byte, len)
+    for i := 0; i < len; i++ {
+        bytes[i] = byte(randomInt(65, 90))
+    }
+    return string(bytes)
 }

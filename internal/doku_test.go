@@ -140,9 +140,5 @@ func TestSolve(t *testing.T) {
 
     s := NewSudoku(impossiblepuzzle)
     err := s.Solve()
-    fmt.Println(impossiblepuzzle)
-    fmt.Println("")
-    fmt.Println(s.Display())
-
     assert.Contains(err.Error(), "Contradiction: ")
 }
