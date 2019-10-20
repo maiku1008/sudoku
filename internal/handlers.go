@@ -32,6 +32,7 @@ type Session struct {
     Grid   string `json:"grid"`
     Hash   string `json:"hash"`
     Solved bool   `json:"solved"`
+    Error  string `json:"error"`
 }
 
 // NewSudokuHandler initializes a sudokuHandler
@@ -79,8 +80,12 @@ func (h solveHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
     session := dumpJSONToSession(r.Body)
 
-    s := sudokuStorage[session.Hash]
-    s.Solve()
+    if _, ok := sudokuStorage[session.Hash]; !ok {
+        session.Error = "Sudoku not found"
+    } else {
+        s := sudokuStorage[session.Hash]
+        s.Solve()
+    }
 }
 
 // NewStateHandler initializes a stateHandler
@@ -92,8 +97,12 @@ func (h stateHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
     session := dumpJSONToSession(r.Body)
 
-    s := sudokuStorage[session.Hash]
-    session.Solved = s.isSolved()
+    if _, ok := sudokuStorage[session.Hash]; !ok {
+        session.Error = "Sudoku not found"
+    } else {
+        s := sudokuStorage[session.Hash]
+        session.Solved = s.isSolved()
+    }
 
     w.Header().Set("Content-Type", "application/json")
     w.WriteHeader(http.StatusCreated)

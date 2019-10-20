@@ -58,7 +58,6 @@ func TestEndPoints(t *testing.T) {
     }
 }
 
-// TODO: Add functionality to check if hash exists, otherwise return error below
 func TestEndpointInvalidHash(t *testing.T) {
     assert := assert.New(t)
 
@@ -67,5 +66,5 @@ func TestEndpointInvalidHash(t *testing.T) {
     request, _ := http.NewRequest("POST", "/state", JSON)
     response := httptest.NewRecorder()
     Mux().ServeHTTP(response, request)
-    assert.Contains(response.Body, "Sudoku not found")
+    assert.Contains(response.Body.String(), "Sudoku not found")
 }
