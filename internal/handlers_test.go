@@ -57,3 +57,15 @@ func TestEndPoints(t *testing.T) {
         fmt.Println("Response:\n", response.Body)
     }
 }
+
+// TODO: Add functionality to check if hash exists, otherwise return error below
+func TestEndpointInvalidHash(t *testing.T) {
+    assert := assert.New(t)
+
+    jsonString := "{\"grid\":\"400000805030000000000700000020000060000080400000010000000603070500200000104000000\",\"hash\":\"EMASO\"}"
+    JSON := bytes.NewBuffer([]byte(jsonString))
+    request, _ := http.NewRequest("POST", "/state", JSON)
+    response := httptest.NewRecorder()
+    Mux().ServeHTTP(response, request)
+    assert.Contains(response.Body, "Sudoku not found")
+}
