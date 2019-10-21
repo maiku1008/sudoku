@@ -56,7 +56,6 @@ func (h sudokuHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 }
 
 // NewDisplayHandler initializes a displayHandler
-// TODO: For the api we need a displayer that just saves the new grid
 func NewDisplayHandler() http.Handler { return displayHandler{} }
 
 type displayHandler struct{}
@@ -65,10 +64,17 @@ func (h displayHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
     session := dumpJSONToSession(r.Body)
 
-    s := sudokuStorage[session.Hash]
+    if _, ok := sudokuStorage[session.Hash]; !ok {
+        session.Error = "Sudoku not found"
+    } else {
+        s := sudokuStorage[session.Hash]
+        // TODO: This won't work, grid is a map :)
+        session.Grid = s.DisplayString()
+    }
 
-    // TODO: Delete this
-    fmt.Println("Manually Displaying:\n", s.Display())
+    w.Header().Set("Content-Type", "application/json")
+    w.WriteHeader(http.StatusCreated)
+    json.NewEncoder(w).Encode(session)
 }
 
 // NewSolveHandler initializes a solveHandler

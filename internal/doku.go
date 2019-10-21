@@ -160,6 +160,12 @@ func (s *Sudoku) Display() string {
     return grid
 }
 
+// DisplayString prints the sudoku's grid in string form
+func (s *Sudoku) DisplayString() string {
+    // Some logic
+    return "a"
+}
+
 // Solve a sudoku by constraint propagation and search
 func (s *Sudoku) Solve() error {
     if err := s.constraintPropagation(); err != nil {
