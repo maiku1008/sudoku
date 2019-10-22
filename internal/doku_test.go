@@ -143,7 +143,6 @@ func TestSolve(t *testing.T) {
     assert.Contains(err.Error(), "Contradiction: ")
 }
 
-// TODO: Write the function that makes this test pass
 func TestDisplayString(t *testing.T) {
     assert := assert.New(t)
     s := NewSudoku(mediumpuzzle)

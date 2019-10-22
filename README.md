@@ -21,8 +21,8 @@ We interface with this application with a simple cli app for running locally, or
 - [ ] Add Go CI
 - [ ] Write simple CLI app
 - [x] Validate if hash exists in server app
-- [ ] Write a DisplayString() that will simply output the solved sudoku in string form
-- [ ] Write a test and a handler for the above DisplayString()
+- [x] Write a DisplayString() that will simply output the solved sudoku in string form
+- [x] Write a test and a handler for the above DisplayString()
 - [ ] Consider splitting up the session struct into a request and response struct instead
 - [ ] Dockerize server app
 - [ ] Write tests for remaining helper functions

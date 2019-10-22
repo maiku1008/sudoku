@@ -4,6 +4,7 @@ package doku
 
 import (
     "fmt"
+    "sort"
     "strings"
 )
 
@@ -162,8 +163,22 @@ func (s *Sudoku) Display() string {
 
 // DisplayString prints the sudoku's grid in string form
 func (s *Sudoku) DisplayString() string {
-    // Some logic
-    return "a"
+
+    keys := make([]string, 0, len(s.grid))
+    for k := range s.grid {
+        keys = append(keys, string(k))
+    }
+    sort.Strings(keys)
+
+    grid := ""
+    for _, square := range keys {
+        if len(s.grid[index(square)]) == 1 {
+            grid = grid + string(s.grid[index(square)])
+        } else {
+            grid = grid + "0"
+        }
+    }
+    return grid
 }
 
 // Solve a sudoku by constraint propagation and search

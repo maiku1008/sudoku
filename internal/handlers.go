@@ -10,8 +10,8 @@ import (
     "time"
 )
 
-// TODO: Figure out better storage, like mongodb
 // sudokuStorage stores Sudoku objects
+// TODO: Figure out better storage, like mongodb
 var sudokuStorage = make(map[string]*Sudoku)
 
 func dumpJSONToSession(b io.ReadCloser) Session {
@@ -28,6 +28,7 @@ func dumpJSONToSession(b io.ReadCloser) Session {
 }
 
 // Session is used to map the json data for the session.
+// TODO: Split this up in a request and a response
 type Session struct {
     Grid   string `json:"grid"`
     Hash   string `json:"hash"`
@@ -68,7 +69,6 @@ func (h displayHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
         session.Error = "Sudoku not found"
     } else {
         s := sudokuStorage[session.Hash]
-        // TODO: This won't work, grid is a map :)
         session.Grid = s.DisplayString()
     }
 

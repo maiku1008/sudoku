@@ -25,10 +25,10 @@ var endpointTests = []struct {
     endpoint string
     respcode int
 }{
-    {"POST", "/display", 200},
+    {"POST", "/display", 201},
     {"POST", "/state", 201},
     {"POST", "/solve", 200},
-    {"POST", "/display", 200},
+    {"POST", "/display", 201},
     {"POST", "/state", 201},
 }
 
