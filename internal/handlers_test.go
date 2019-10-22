@@ -27,7 +27,7 @@ var endpointTests = []struct {
 }{
     {"POST", "/display", 201},
     {"POST", "/state", 201},
-    {"POST", "/solve", 200},
+    {"POST", "/solve", 201},
     {"POST", "/display", 201},
     {"POST", "/state", 201},
 }

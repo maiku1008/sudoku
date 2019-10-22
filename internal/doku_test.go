@@ -131,7 +131,8 @@ func TestSolve(t *testing.T) {
     for _, p := range puzzles {
         s := NewSudoku(p.puzzleToSolve)
         err := s.Solve()
-        fmt.Println(p.puzzleToSolve)
+        fmt.Println("Puzzle: ", p.puzzleToSolve)
+        fmt.Println("Solved: ", s.DisplayString())
         fmt.Println("")
         fmt.Println(s.Display())
         assert.True(s.isSolved())
@@ -147,6 +148,5 @@ func TestDisplayString(t *testing.T) {
     assert := assert.New(t)
     s := NewSudoku(mediumpuzzle)
     s.Solve()
-    s.DisplayString()
     assert.Equal(s.DisplayString(), solvedpuzzle)
 }

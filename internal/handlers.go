@@ -14,26 +14,25 @@ import (
 // TODO: Figure out better storage, like mongodb
 var sudokuStorage = make(map[string]*Sudoku)
 
-func dumpJSONToSession(b io.ReadCloser) Session {
-
-    body, _ := ioutil.ReadAll(b)
-
-    var session Session
-    err := json.Unmarshal(body, &session)
-    if err != nil {
-        fmt.Println(err)
-    }
-
-    return session
-}
-
-// Session is used to map the json data for the session.
-// TODO: Split this up in a request and a response
-type Session struct {
+// jsonStruct is used to map the json data for the session.
+type jsonStruct struct {
     Grid   string `json:"grid"`
     Hash   string `json:"hash"`
     Solved bool   `json:"solved"`
     Error  string `json:"error"`
+}
+
+func dumpJSON(b io.ReadCloser) jsonStruct {
+
+    body, _ := ioutil.ReadAll(b)
+
+    var jsonStruct jsonStruct
+    err := json.Unmarshal(body, &jsonStruct)
+    if err != nil {
+        fmt.Println(err)
+    }
+
+    return jsonStruct
 }
 
 // NewSudokuHandler initializes a sudokuHandler
@@ -43,17 +42,18 @@ type sudokuHandler struct{}
 
 func (h sudokuHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
-    session := dumpJSONToSession(r.Body)
+    request := dumpJSON(r.Body)
 
+    s := NewSudoku(request.Grid)
+
+    var response jsonStruct
     rand.Seed(time.Now().UnixNano())
-    session.Hash = randomString(5)
-
-    s := NewSudoku(session.Grid)
-    sudokuStorage[session.Hash] = s
+    response.Hash = randomString(5)
+    sudokuStorage[response.Hash] = s
 
     w.Header().Set("Content-Type", "application/json")
     w.WriteHeader(http.StatusCreated)
-    json.NewEncoder(w).Encode(session)
+    json.NewEncoder(w).Encode(response)
 }
 
 // NewDisplayHandler initializes a displayHandler
@@ -63,18 +63,19 @@ type displayHandler struct{}
 
 func (h displayHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
-    session := dumpJSONToSession(r.Body)
+    request := dumpJSON(r.Body)
 
-    if _, ok := sudokuStorage[session.Hash]; !ok {
-        session.Error = "Sudoku not found"
+    var response jsonStruct
+    if _, ok := sudokuStorage[request.Hash]; !ok {
+        response.Error = "Sudoku not found"
     } else {
-        s := sudokuStorage[session.Hash]
-        session.Grid = s.DisplayString()
+        s := sudokuStorage[request.Hash]
+        response.Grid = s.DisplayString()
     }
 
     w.Header().Set("Content-Type", "application/json")
     w.WriteHeader(http.StatusCreated)
-    json.NewEncoder(w).Encode(session)
+    json.NewEncoder(w).Encode(response)
 }
 
 // NewSolveHandler initializes a solveHandler
@@ -84,14 +85,19 @@ type solveHandler struct{}
 
 func (h solveHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
-    session := dumpJSONToSession(r.Body)
+    request := dumpJSON(r.Body)
 
-    if _, ok := sudokuStorage[session.Hash]; !ok {
-        session.Error = "Sudoku not found"
+    var response jsonStruct
+    if _, ok := sudokuStorage[request.Hash]; !ok {
+        response.Error = "Sudoku not found"
     } else {
-        s := sudokuStorage[session.Hash]
+        s := sudokuStorage[request.Hash]
         s.Solve()
     }
+
+    w.Header().Set("Content-Type", "application/json")
+    w.WriteHeader(http.StatusCreated)
+    json.NewEncoder(w).Encode(response)
 }
 
 // NewStateHandler initializes a stateHandler
@@ -101,16 +107,17 @@ type stateHandler struct{}
 
 func (h stateHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
-    session := dumpJSONToSession(r.Body)
+    request := dumpJSON(r.Body)
 
-    if _, ok := sudokuStorage[session.Hash]; !ok {
-        session.Error = "Sudoku not found"
+    var response jsonStruct
+    if _, ok := sudokuStorage[request.Hash]; !ok {
+        response.Error = "Sudoku not found"
     } else {
-        s := sudokuStorage[session.Hash]
-        session.Solved = s.isSolved()
+        s := sudokuStorage[request.Hash]
+        response.Solved = s.isSolved()
     }
 
     w.Header().Set("Content-Type", "application/json")
     w.WriteHeader(http.StatusCreated)
-    json.NewEncoder(w).Encode(session)
+    json.NewEncoder(w).Encode(response)
 }

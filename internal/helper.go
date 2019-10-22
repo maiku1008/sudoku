@@ -37,13 +37,11 @@ func isvalid(v string) bool {
     return char || v == "." || v == "0"
 }
 
-// TODO: Write test for this
 // Returns an int >= min, < max
 func randomInt(min, max int) int {
     return min + rand.Intn(max-min)
 }
 
-// TODO: Write test for this
 // Generate a random string of A-Z chars with len = l
 func randomString(len int) string {
     bytes := make([]byte, len)
