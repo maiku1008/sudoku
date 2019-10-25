@@ -8,20 +8,31 @@ It uses [Constraint Propagation](https://en.wikipedia.org/wiki/Constraint_satisf
 ## Representation
 
 We represent a puzzle with a 81 character long string.
+It can use "." to represent an unknown value:
 
-examples:
 `..5...987.4..5...1..7......2...48....9.1.....6..2.....3..6..2.......9.7.......5..`
+
+or a "0":
+
 `600302000040000010000000000702600000000000054300000000080150000000040200000000700`
 
+Some examples are included in the text files in this repository.
+
 ## Installation
+Build with:
 
 ```
 go build doku.go
 ```
 
+Test with:
+```
+go test -v ./internal
+```
+
 ## Use
 
-We interface with this application with a simple cli app for running locally.
+We have several options to interfaced with the application.
 
 Run with `-s` flag to solve a single puzzle.
 
@@ -62,8 +73,49 @@ Solved:  13542698784695732192738146521374865959816374267429581335167429848253917
 Solved in:  11.149529ms
 ```
 
-Run with `-server` flag to run a server option where we can wrap its main functions in API endpoints, useful for creating a full stack web application.
+Run with `-f filename.txt` for resolving the puzzles in each of the lines of the txt file
+```
+./doku -f puzzles_medium.txt
+```
 
+## API
+
+Run with `-server` flag to run a local webserver exposting API endpoints which wrap doku's main functions; useful for creating a full stack web application.
+
+```
+./doku -server
+Starting the server on port: 8080
+```
+
+```
+curl -i \
+-H "Accept: application/json" \
+-X POST -d "grid":"..5...987.4..5...1..7......2...48....9.1.....6..2.....3..6..2.......9.7.......5..0" \
+http://localhost:8080/newsudoku
+```
+
+```
+HTTP/1.1 201 Created
+Content-Type: application/json
+Date: Fri, 25 Oct 2019 18:19:55 GMT
+Content-Length: 53
+
+{"grid":"","hash":"TJWUT","solved":false,"error":""}
+```
+
+```
+/display
+```
+
+```
+/solve
+```
+
+```
+/state
+```
+## Docker
+Coming Soon!
 
 ## TODO:
 - [ ] Complete Readme
@@ -74,8 +126,7 @@ Run with `-server` flag to run a server option where we can wrap its main functi
 - [x] Write a test and a handler for the above DisplayString()
 - [x] Consider splitting up the session struct into a request and response struct instead
 - [ ] Dockerize server app
-- [ ] Use different storage other than a map
 
 ---
 
-This project has been inspired by [this](https://norvig.com/sudoku.html) blog post.
+This project was inspired by [Peter Norvig's](https://norvig.com/sudoku.html) blog post.
