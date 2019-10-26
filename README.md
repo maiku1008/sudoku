@@ -2,7 +2,7 @@
 
 ## Intro
 
-A sudoku solver written in Go, that can solve *any* puzzle;
+A sudoku solver written in Go, that can solve **any** puzzle;
 It uses [Constraint Propagation](https://en.wikipedia.org/wiki/Constraint_satisfaction) and [Search](https://en.wikipedia.org/wiki/Search_algorithm) algorithms.
 
 ## Representation
@@ -32,7 +32,7 @@ go test -v ./internal
 
 ## Use
 
-We have several options to interfaced with the application.
+We have several options to interface with the application.
 
 Run with `-s` flag to solve a single puzzle.
 
@@ -87,45 +87,73 @@ Run with `-server` flag to run a local webserver exposting API endpoints which w
 Starting the server on port: 8080
 ```
 
+### /newsudoku
+Request with `curl`:
 ```
 curl -i \
 -H "Accept: application/json" \
--X POST -d "grid":"..5...987.4..5...1..7......2...48....9.1.....6..2.....3..6..2.......9.7.......5..0" \
+-X POST -d {"grid":"..5...987.4..5...1..7......2...48....9.1.....6..2.....3..6..2.......9.7.......5..0"} \
 http://localhost:8080/newsudoku
 ```
 
+Server Response:
 ```
 HTTP/1.1 201 Created
 Content-Type: application/json
 Date: Fri, 25 Oct 2019 18:19:55 GMT
 Content-Length: 53
 
-{"grid":"","hash":"TJWUT","solved":false,"error":""}
+{"grid":"","hash":"BPJHF","solved":false,"error":""}
 ```
 
+### /display
+Request with `curl`:
 ```
-/display
+curl -i \
+-H "Accept: application/json" \
+-X POST -d {"hash":"BPJHF"} \
+http://localhost:8080/display
+```
+Server Response:
+```
 ```
 
+### /solve
+Request with `curl`:
 ```
-/solve
+curl -i \
+-H "Accept: application/json" \
+-X POST -d {"hash":"BPJHF"} \
+http://localhost:8080/solve
 ```
 
+Server Response:
 ```
-/state
 ```
+
+### /state
+Request with `curl`:
+```
+curl -i \
+-H "Accept: application/json" \
+-X POST -d {"hash":"BPJHF"} \
+http://localhost:8080/state
+```
+
+Server Response:
+```
+```
+
 ## Docker
-Coming Soon!
+
+```
+docker build -t doku .
+docker run -d -p 8080:8080 doku
+```
 
 ## TODO:
 - [ ] Complete Readme
-- [ ] Add Go CI
-- [x] Write simple CLI app
-- [x] Validate if hash exists in server app
-- [x] Write a DisplayString() that will simply output the solved sudoku in string form
-- [x] Write a test and a handler for the above DisplayString()
-- [x] Consider splitting up the session struct into a request and response struct instead
-- [ ] Dockerize server app
+- [ ] Debug "invalid character 'h' looking for beginning of object key string" 
 
 ---
 
