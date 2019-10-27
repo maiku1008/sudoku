@@ -1,13 +1,13 @@
 package doku
 
 import (
-    "encoding/json"
-    "fmt"
-    "io"
-    "io/ioutil"
-    "math/rand"
-    "net/http"
-    "time"
+	"encoding/json"
+	"fmt"
+	"io"
+	"io/ioutil"
+	"math/rand"
+	"net/http"
+	"time"
 )
 
 // sudokuStorage stores Sudoku objects
@@ -16,44 +16,49 @@ var sudokuStorage = make(map[string]*Sudoku)
 
 // jsonStruct is used to map the json data for the session.
 type jsonStruct struct {
-    Grid   string `json:"grid"`
-    Hash   string `json:"hash"`
-    Solved bool   `json:"solved"`
-    Error  string `json:"error"`
+	Grid   string `json:"grid"`
+	Hash   string `json:"hash"`
+	Solved bool   `json:"solved"`
+	Error  string `json:"error"`
 }
 
 func dumpJSON(b io.ReadCloser) jsonStruct {
 
-    body, _ := ioutil.ReadAll(b)
+	body, err := ioutil.ReadAll(b)
+	if err != nil {
+		fmt.Println("Error reading body:", err)
+	}
 
-    var jsonStruct jsonStruct
-    err := json.Unmarshal(body, &jsonStruct)
-    if err != nil {
-        fmt.Println(err)
-    }
+	var model jsonStruct
+	err = json.Unmarshal(body, &model)
+	if err != nil {
+		fmt.Println("Unmarshalling Error:", err)
+		fmt.Println("Body:", body)
+	}
 
-    return jsonStruct
+	return model
 }
 
-// NewSudokuHandler initializes a sudokuHandler
-func NewSudokuHandler() http.Handler { return sudokuHandler{} }
+// NewSudokuHandler initializes a newSudokuHandler
+func NewSudokuHandler() http.Handler { return newSudokuHandler{} }
 
-type sudokuHandler struct{}
+type newSudokuHandler struct{}
 
-func (h sudokuHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+func (h newSudokuHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
-    request := dumpJSON(r.Body)
+	request := dumpJSON(r.Body)
+	fmt.Println(request.Grid)
 
-    s := NewSudoku(request.Grid)
+	s := NewSudoku(request.Grid)
 
-    var response jsonStruct
-    rand.Seed(time.Now().UnixNano())
-    response.Hash = randomString(5)
-    sudokuStorage[response.Hash] = s
+	var response jsonStruct
+	rand.Seed(time.Now().UnixNano())
+	response.Hash = randomString(5)
+	sudokuStorage[response.Hash] = s
 
-    w.Header().Set("Content-Type", "application/json")
-    w.WriteHeader(http.StatusCreated)
-    json.NewEncoder(w).Encode(response)
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusCreated)
+	json.NewEncoder(w).Encode(response)
 }
 
 // NewDisplayHandler initializes a displayHandler
@@ -63,19 +68,19 @@ type displayHandler struct{}
 
 func (h displayHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
-    request := dumpJSON(r.Body)
+	request := dumpJSON(r.Body)
 
-    var response jsonStruct
-    if _, ok := sudokuStorage[request.Hash]; !ok {
-        response.Error = "Sudoku not found"
-    } else {
-        s := sudokuStorage[request.Hash]
-        response.Grid = s.DisplayString()
-    }
+	var response jsonStruct
+	if _, ok := sudokuStorage[request.Hash]; !ok {
+		response.Error = "Sudoku not found"
+	} else {
+		s := sudokuStorage[request.Hash]
+		response.Grid = s.DisplayString()
+	}
 
-    w.Header().Set("Content-Type", "application/json")
-    w.WriteHeader(http.StatusCreated)
-    json.NewEncoder(w).Encode(response)
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusCreated)
+	json.NewEncoder(w).Encode(response)
 }
 
 // NewSolveHandler initializes a solveHandler
@@ -85,19 +90,19 @@ type solveHandler struct{}
 
 func (h solveHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
-    request := dumpJSON(r.Body)
+	request := dumpJSON(r.Body)
 
-    var response jsonStruct
-    if _, ok := sudokuStorage[request.Hash]; !ok {
-        response.Error = "Sudoku not found"
-    } else {
-        s := sudokuStorage[request.Hash]
-        s.Solve()
-    }
+	var response jsonStruct
+	if _, ok := sudokuStorage[request.Hash]; !ok {
+		response.Error = "Sudoku not found"
+	} else {
+		s := sudokuStorage[request.Hash]
+		s.Solve()
+	}
 
-    w.Header().Set("Content-Type", "application/json")
-    w.WriteHeader(http.StatusCreated)
-    json.NewEncoder(w).Encode(response)
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusCreated)
+	json.NewEncoder(w).Encode(response)
 }
 
 // NewStateHandler initializes a stateHandler
@@ -107,17 +112,17 @@ type stateHandler struct{}
 
 func (h stateHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
-    request := dumpJSON(r.Body)
+	request := dumpJSON(r.Body)
 
-    var response jsonStruct
-    if _, ok := sudokuStorage[request.Hash]; !ok {
-        response.Error = "Sudoku not found"
-    } else {
-        s := sudokuStorage[request.Hash]
-        response.Solved = s.isSolved()
-    }
+	var response jsonStruct
+	if _, ok := sudokuStorage[request.Hash]; !ok {
+		response.Error = "Sudoku not found"
+	} else {
+		s := sudokuStorage[request.Hash]
+		response.Solved = s.isSolved()
+	}
 
-    w.Header().Set("Content-Type", "application/json")
-    w.WriteHeader(http.StatusCreated)
-    json.NewEncoder(w).Encode(response)
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusCreated)
+	json.NewEncoder(w).Encode(response)
 }

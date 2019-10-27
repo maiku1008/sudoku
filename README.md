@@ -39,6 +39,7 @@ Run with `-s` flag to solve a single puzzle.
 ```
 ./doku -s "..5...987.4..5...1..7......2...48....9.1.....6..2.....3..6..2.......9.7.......5.."
 ```
+
 Output:
 ```
 Puzzle:  ..5...987.4..5...1..7......2...48....9.1.....6..2.....3..6..2.......9.7.......5..
@@ -78,83 +79,113 @@ Run with `-f filename.txt` for resolving the puzzles in each of the lines of the
 ./doku -f puzzles_medium.txt
 ```
 
-## API
-
-Run with `-server` flag to run a local webserver exposting API endpoints which wrap doku's main functions; useful for creating a full stack web application.
+Run with `-server` flag to run a local webserver exposing API endpoints which wrap doku's main functions; useful for creating a full stack web application.
 
 ```
 ./doku -server
 Starting the server on port: 8080
 ```
 
+API endpoints are described below.
+
+## API Endpoints
 ### /newsudoku
+Calls the NewSudoku() method with `grid` as its argument.
+Returns a `hash` that identifies the Sudoku object.
+Use the same hash in subsequent calls to interface with your puzzle.
+
 Request with `curl`:
 ```
 curl -i \
 -H "Accept: application/json" \
--X POST -d {"grid":"..5...987.4..5...1..7......2...48....9.1.....6..2.....3..6..2.......9.7.......5..0"} \
+-X POST -d {\"grid\":\"600302000040000010000000000702600000000000054300000000080150000000040200000000700\"} \
 http://localhost:8080/newsudoku
 ```
 
-Server Response:
+Example server response:
 ```
-HTTP/1.1 201 Created
-Content-Type: application/json
-Date: Fri, 25 Oct 2019 18:19:55 GMT
-Content-Length: 53
-
-{"grid":"","hash":"BPJHF","solved":false,"error":""}
+{
+    "grid":"",
+    "hash":"LAYHX",
+    "solved":false,
+    "error":""
+}
 ```
 
 ### /display
+Calls the DisplayString() method for the Sudoku object identified by `hash`.
+Returns a `grid` string value representing the current Sudoku puzzle.
+
 Request with `curl`:
 ```
 curl -i \
 -H "Accept: application/json" \
--X POST -d {"hash":"BPJHF"} \
+-X POST -d {\"hash\":\"LAYHX\"} \
 http://localhost:8080/display
 ```
-Server Response:
+
+Example server response:
 ```
+{
+    "grid":"600302000040000010000000000702600000000000054300000000080150000000040200000000700",
+    "hash":"",
+    "solved":false,
+    "error":""
+}
 ```
 
 ### /solve
+Calls the Solve() method for the Sudoku object identified by `hash`.
+Doesn't return anything.
+
 Request with `curl`:
 ```
 curl -i \
 -H "Accept: application/json" \
--X POST -d {"hash":"BPJHF"} \
+-X POST -d {\"hash\":\"LAYHX\"} \
 http://localhost:8080/solve
 ```
 
-Server Response:
+Example server response:
 ```
+{
+    "grid":"",
+    "hash":"",
+    "solved":false,
+    "error":""
+}
 ```
 
 ### /state
+Calls the isSolved() method for the Sudoku object identified by `hash`.
+Returns a `solved` boolean field.
+
 Request with `curl`:
 ```
 curl -i \
 -H "Accept: application/json" \
--X POST -d {"hash":"BPJHF"} \
+-X POST -d {\"hash\":\"LAYHX\"} \
 http://localhost:8080/state
 ```
 
-Server Response:
+Example server response:
 ```
+{
+    "grid":"",
+    "hash":"",
+    "solved":true,
+    "error":""
+}
 ```
 
 ## Docker
 
+Run the server app in a Docker container as such:
 ```
 docker build -t doku .
 docker run -d -p 8080:8080 doku
 ```
 
-## TODO:
-- [ ] Complete Readme
-- [ ] Debug "invalid character 'h' looking for beginning of object key string" 
-
 ---
 
-This project was inspired by [Peter Norvig's](https://norvig.com/sudoku.html) blog post.
+This project was inspired by Peter Norvig's [blog post](https://norvig.com/sudoku.html).
