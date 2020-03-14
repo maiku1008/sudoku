@@ -1,6 +1,6 @@
 // Package doku solves sudoku puzzles
 // through constraint propagation and search
-package doku
+package sudoku
 
 import (
     "fmt"

@@ -5,7 +5,7 @@ COPY go.mod go.sum ./
 RUN go mod download
 
 COPY . .
-RUN go build -o doku .
+RUN go build -o sudoku .
 EXPOSE 8080
 
-CMD ["./doku", "-server"]
+CMD ["./sudoku", "-server"]

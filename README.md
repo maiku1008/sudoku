@@ -1,4 +1,4 @@
-# micuffaro/doku
+# micuffaro/sudoku
 
 ## Intro
 
@@ -22,7 +22,7 @@ Some examples are included in the text files in this repository.
 Build with:
 
 ```
-go build doku.go
+go build sudoku.go
 ```
 
 Test with:
@@ -37,7 +37,7 @@ We have several options to interface with the application.
 Run with `-s` flag to solve a single puzzle.
 
 ```
-./doku -s "..5...987.4..5...1..7......2...48....9.1.....6..2.....3..6..2.......9.7.......5.."
+./sudoku -s "..5...987.4..5...1..7......2...48....9.1.....6..2.....3..6..2.......9.7.......5.."
 ```
 
 Output:
@@ -76,7 +76,7 @@ Solved in:  11.149529ms
 
 Run with `-f filename.txt` for resolving the puzzles in each of the lines of the txt file
 ```
-./doku -f puzzles_medium.txt
+./sudoku -f puzzles_medium.txt
 ```
 
 ---

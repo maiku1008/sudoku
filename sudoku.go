@@ -8,12 +8,12 @@ import (
 	"os"
 	"time"
 
-	doku "github.com/micuffaro/doku/internal"
+	sudoku "github.com/micuffaro/sudoku/internal"
 )
 
 // Sudoku has the main routine that can be called
 func Sudoku(grid string) {
-	s := doku.NewSudoku(grid) // Create new sudoku object
+	s := sudoku.NewSudoku(grid) // Create new sudoku object
 	fmt.Println("Puzzle: ", grid)
 	fmt.Println()
 	fmt.Println(s.Display()) // Print a pretty display
@@ -59,13 +59,13 @@ func main() {
 	file := flag.String("f", "", "Text file with puzzles.")
 	flag.Parse()
 
-	// Start a server which exposes the doku API
+	// Start a server which exposes the sudoku API
 	if *server {
 		mux := http.NewServeMux()
-		mux.Handle("/newsudoku", doku.NewSudokuHandler())
-		mux.Handle("/display", doku.NewDisplayHandler())
-		mux.Handle("/solve", doku.NewSolveHandler())
-		mux.Handle("/state", doku.NewStateHandler())
+		mux.Handle("/newsudoku", sudoku.NewSudokuHandler())
+		mux.Handle("/display", sudoku.NewDisplayHandler())
+		mux.Handle("/solve", sudoku.NewSolveHandler())
+		mux.Handle("/state", sudoku.NewStateHandler())
 
 		fmt.Printf("Starting the server on port: 8080\n")
 		err := http.ListenAndServe(":8080", mux)
@@ -77,10 +77,6 @@ func main() {
 	// Solve the sudoku puzzle in gridString
 	if *gridString != "" {
 		Sudoku(*gridString)
-	} else {
-		fmt.Println("Invalid string for grid. Please specify one with -s")
-		fmt.Println("Exiting")
-		os.Exit(1)
 	}
 
 	// Solve the sudoku puzzles found in a file
@@ -99,9 +95,5 @@ func main() {
 		}
 		elapsed := time.Since(start)
 		fmt.Println("Solved", count, "Sudoku puzzles in", elapsed)
-	} else {
-		fmt.Println("Invalid file path. Please specify one with -f")
-		fmt.Println("Exiting")
-		os.Exit(1)
 	}
 }

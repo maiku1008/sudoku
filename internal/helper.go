@@ -1,4 +1,4 @@
-package doku
+package sudoku
 
 import (
     "math/rand"

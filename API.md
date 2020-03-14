@@ -1,9 +1,9 @@
 ## API
 
-Run with `-server` flag to run a local webserver exposing API endpoints which wrap doku's main functions; useful for creating a full stack web application.
+Run with `-server` flag to run a local webserver exposing API endpoints which wrap sudoku's main functions; useful for creating a full stack web application.
 
 ```
-./doku -server
+./sudoku -server
 Starting the server on port: 8080
 ```
 
@@ -101,8 +101,8 @@ Example server response:
 
 Run the server app in a Docker container as such:
 ```
-docker build -t doku .
-docker run -d -p 8080:8080 doku
+docker build -t sudoku .
+docker run -d -p 8080:8080 sudoku
 ```
 
 You can then access the described API via localhost:8080

@@ -1,4 +1,4 @@
-module github.com/micuffaro/doku
+module github.com/micuffaro/sudoku
 
 go 1.14
 
