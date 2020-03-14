@@ -69,3 +69,5 @@ func TestEndpointInvalidHash(t *testing.T) {
 	Mux().ServeHTTP(response, request)
 	assert.Contains(response.Body.String(), "Sudoku not found")
 }
+
+// TODO:Test each endpoint with request/response
