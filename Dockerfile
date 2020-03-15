@@ -8,4 +8,4 @@ COPY . .
 RUN go build -o sudoku .
 EXPOSE 8080
 
-CMD ["./sudoku", "-server"]
+CMD ["./sudoku_solver", "-server"]

@@ -22,7 +22,7 @@ Some examples are included in the text files in this repository.
 Build with:
 
 ```
-go build sudoku.go
+go build sudoku_solver.go
 ```
 
 Test with:
@@ -37,7 +37,7 @@ We have several options to interface with the application.
 Run with `-s` flag to solve a single puzzle.
 
 ```
-./sudoku -s "..5...987.4..5...1..7......2...48....9.1.....6..2.....3..6..2.......9.7.......5.."
+./sudoku_solver -s "..5...987.4..5...1..7......2...48....9.1.....6..2.....3..6..2.......9.7.......5.."
 ```
 
 Output:
@@ -76,7 +76,7 @@ Solved in:  11.149529ms
 
 Run with `-f filename.txt` for resolving the puzzles in each of the lines of the txt file
 ```
-./sudoku -f puzzles_medium.txt
+./sudoku_solver -f puzzles_medium.txt
 ```
 
 ## API
@@ -84,7 +84,7 @@ Run with `-f filename.txt` for resolving the puzzles in each of the lines of the
 Run with `-server` flag to run a local webserver exposing API endpoints which wrap sudoku's main functions; useful for creating a full stack web application.
 
 ```
-./sudoku -server
+./sudoku_solver -server
 Starting the server on port: 8080
 ```
 
