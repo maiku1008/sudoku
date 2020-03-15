@@ -62,8 +62,7 @@ func main() {
 	// Start a server which exposes the sudoku API
 	if *server {
 		mux := http.NewServeMux()
-		mux.Handle("/newsudoku", sudoku.NewSudokuHandler())
-		mux.Handle("/display", sudoku.NewDisplayHandler())
+		mux.Handle("/newsudoku", sudoku.NewSudokuHandler(time.Now))
 		mux.Handle("/solve", sudoku.NewSolveHandler())
 		mux.Handle("/state", sudoku.NewStateHandler())
 

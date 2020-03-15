@@ -24,7 +24,9 @@ type Request struct {
 }
 
 // NewSudokuHandler initializes a newSudokuHandler
-func NewSudokuHandler() http.Handler { return newSudokuHandler{} }
+func NewSudokuHandler(timeFunc func() time.Time) http.Handler {
+	return newSudokuHandler{timeFunc}
+}
 
 // JSON response for /newsudoku endpoint
 type newSudokuResponse struct {
@@ -32,7 +34,11 @@ type newSudokuResponse struct {
 	Error  string `json:"error"`
 }
 
-type newSudokuHandler struct{}
+type newSudokuHandler struct{
+	// timeFunc is used to determine a time.Time object which
+	// we will use to generate as a seed to generate unique hashes
+	timeFunc func() time.Time
+}
 
 func (h newSudokuHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
@@ -40,7 +46,7 @@ func (h newSudokuHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	s := NewSudoku(request.Grid)
 
 	var response newSudokuResponse
-	response.Hash = getHash(time.Now())
+	response.Hash = getHash(h.timeFunc())
 	response.Error = NoError
 
 	sudokuStorage[response.Hash] = s // Store the sudoku object

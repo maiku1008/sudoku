@@ -6,14 +6,18 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/assert"
 )
 
 func Mux() *http.ServeMux {
+	t := func() time.Time {
+		return time.Date(1983, 9, 1, 20, 0, 0, 0, time.UTC)
+	}
 
 	mux := http.NewServeMux()
-	mux.Handle("/newsudoku", NewSudokuHandler())
+	mux.Handle("/newsudoku", NewSudokuHandler(t))
 	mux.Handle("/solve", NewSolveHandler())
 	mux.Handle("/state", NewStateHandler())
 	return mux
