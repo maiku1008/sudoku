@@ -110,26 +110,6 @@ Example server response:
 }
 ```
 
-### /display
-Calls the DisplayString() method for the Sudoku object identified by `hash`.
-Returns a `grid` string value representing the current Sudoku puzzle.
-
-Request with `curl`:
-```
-curl -i \
--H "Accept: application/json" \
--X POST -d {\"hash\":\"KSKAT\"} \
-http://localhost:8080/display
-```
-
-Example server response:
-```
-{
-  "grid": "600302000040000010000000000702600000000000054300000000080150000000040200000000700",
-  "error": "None"
-}
-```
-
 ### /solve
 Calls the Solve() method for the Sudoku object identified by `hash`.
 Doesn't return anything.
@@ -164,6 +144,7 @@ http://localhost:8080/state
 Example server response:
 ```
 {
+  "grid": "600302000040000010000000000702600000000000054300000000080150000000040200000000700",
   "solved": true,
   "error": "None"
 }

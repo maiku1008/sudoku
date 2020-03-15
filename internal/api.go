@@ -1,18 +1,14 @@
 package sudoku
 
 import (
-	"encoding/json"
 	"fmt"
-	"io"
-	"io/ioutil"
-	"log"
-	"math/rand"
 	"net/http"
 	"time"
 )
 
 const (
 	NoError     = "None"
+	Error = "Sudoku not found"
 	ContentType = "Content-Type"
 	Application = "Application/json"
 )
@@ -25,26 +21,6 @@ var sudokuStorage = make(map[string]*Sudoku)
 type Request struct {
 	Grid   string `json:"grid"`
 	Hash   string `json:"hash"`
-}
-
-// dumpJSON takes the io.ReadCloser object and
-// unmarshals it into a Request struct
-func dumpRequest(b io.ReadCloser) Request {
-
-	// Read the body
-	body, err := ioutil.ReadAll(b)
-	if err != nil {
-		log.Fatalf("Error reading body: %v", err)
-	}
-
-	// Unmarshal the body into the request struct
-	var request Request
-	err = json.Unmarshal(body, &request)
-	if err != nil {
-		log.Fatalf("Unmarshalling error: %v", err)
-	}
-
-	return request
 }
 
 // NewSudokuHandler initializes a newSudokuHandler
@@ -60,54 +36,15 @@ type newSudokuHandler struct{}
 
 func (h newSudokuHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
-	request := dumpRequest(r.Body)
+	request := setRequest(r.Body)
 	s := NewSudoku(request.Grid)
 
 	var response newSudokuResponse
-	rand.Seed(time.Now().UnixNano()) // Generate a random seed according to current time
-	response.Hash = randomString(5)
+	response.Hash = getHash(time.Now())
 	response.Error = NoError
 
 	sudokuStorage[response.Hash] = s // Store the sudoku object
-
-	w.Header().Set(ContentType, Application)
-	w.WriteHeader(http.StatusCreated)
-	err := json.NewEncoder(w).Encode(response)
-	if err != nil {
-		log.Fatalf("Encoding error: %v", err)
-	}
-}
-
-// NewDisplayHandler initializes a displayHandler
-func NewDisplayHandler() http.Handler { return displayHandler{} }
-
-// JSON response for display endpoint
-type displayResponse struct {
-	Grid   string `json:"grid"`
-	Error  string `json:"error"`
-}
-
-type displayHandler struct{}
-
-func (h displayHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-
-	request := dumpRequest(r.Body)
-
-	var response displayResponse
-	if _, ok := sudokuStorage[request.Hash]; !ok {
-		response.Error = "Sudoku not found"
-	} else {
-		s := sudokuStorage[request.Hash]
-		response.Grid = s.DisplayString()
-		response.Error = NoError
-	}
-
-	w.Header().Set(ContentType, Application)
-	w.WriteHeader(http.StatusCreated)
-	err := json.NewEncoder(w).Encode(response)
-	if err != nil {
-		log.Fatalf("Encoding error: %v", err)
-	}
+	setResponse(w, response)
 }
 
 // NewSolveHandler initializes a solveHandler
@@ -122,11 +59,11 @@ type solveHandler struct{}
 
 func (h solveHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
-	request := dumpRequest(r.Body)
+	request := setRequest(r.Body)
 
 	var response solveResponse
 	if _, ok := sudokuStorage[request.Hash]; !ok {
-		response.Error = "Sudoku not found"
+		response.Error = Error
 	} else {
 		s := sudokuStorage[request.Hash]
 		err := s.Solve()
@@ -136,13 +73,7 @@ func (h solveHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			response.Error = NoError
 		}
 	}
-
-	w.Header().Set(ContentType, Application)
-	w.WriteHeader(http.StatusCreated)
-	err := json.NewEncoder(w).Encode(response)
-	if err != nil {
-		log.Fatalf("Encoding error: %v", err)
-	}
+	setResponse(w, response)
 }
 
 // NewStateHandler initializes a stateHandler
@@ -150,6 +81,7 @@ func NewStateHandler() http.Handler { return stateHandler{} }
 
 // JSON response for /state endpoint
 type stateResponse struct {
+	Grid   string `json:"grid"`
 	Solved bool   `json:"solved"`
 	Error  string `json:"error"`
 }
@@ -158,21 +90,16 @@ type stateHandler struct{}
 
 func (h stateHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
-	request := dumpRequest(r.Body)
+	request := setRequest(r.Body)
 
 	var response stateResponse
 	if _, ok := sudokuStorage[request.Hash]; !ok {
-		response.Error = "Sudoku not found"
+		response.Error = Error
 	} else {
 		s := sudokuStorage[request.Hash]
+		response.Grid = s.DisplayString()
 		response.Solved = s.isSolved()
 		response.Error = NoError
 	}
-
-	w.Header().Set(ContentType, Application)
-	w.WriteHeader(http.StatusCreated)
-	err := json.NewEncoder(w).Encode(response)
-	if err != nil {
-		log.Fatalf("Encoding error: %v", err)
-	}
+	setResponse(w, response)
 }

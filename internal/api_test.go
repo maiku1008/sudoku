@@ -14,7 +14,6 @@ func Mux() *http.ServeMux {
 
 	mux := http.NewServeMux()
 	mux.Handle("/newsudoku", NewSudokuHandler())
-	mux.Handle("/display", NewDisplayHandler())
 	mux.Handle("/solve", NewSolveHandler())
 	mux.Handle("/state", NewStateHandler())
 	return mux
@@ -26,10 +25,8 @@ var endpointTests = []struct {
 	endpoint string
 	respcode int
 }{
-	{"POST", "/display", 201},
 	{"POST", "/state", 201},
 	{"POST", "/solve", 201},
-	{"POST", "/display", 201},
 	{"POST", "/state", 201},
 }
 
