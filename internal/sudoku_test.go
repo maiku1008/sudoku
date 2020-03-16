@@ -1,7 +1,6 @@
 package sudoku
 
 import (
-	"fmt"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -132,12 +131,8 @@ func TestSolve(t *testing.T) {
 	for _, p := range puzzles {
 		s := NewSudoku(p.puzzleToSolve)
 		err := s.Solve()
-		fmt.Println("Puzzle: ", p.puzzleToSolve)
-		fmt.Println("Solved: ", s.DisplayString())
-		fmt.Println("")
-		fmt.Println(s.Display())
-		assert.True(s.isSolved())
 		assert.Nil(err)
+		assert.True(s.isSolved())
 	}
 
 	s := NewSudoku(impossiblepuzzle)
