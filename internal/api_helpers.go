@@ -31,7 +31,7 @@ func setRequest(b io.ReadCloser) Request {
 }
 
 // setResponse encodes the response to json and writes it to w
-func setResponse(w http.ResponseWriter, response interface{})  {
+func setResponse(w http.ResponseWriter, response interface{}) {
 
 	// Set header
 	w.Header().Set(ContentType, Application)

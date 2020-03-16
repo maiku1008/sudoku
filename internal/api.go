@@ -8,7 +8,7 @@ import (
 
 const (
 	NoError     = "None"
-	Error = "Sudoku not found"
+	Error       = "Sudoku not found"
 	ContentType = "Content-Type"
 	Application = "Application/json"
 )
@@ -19,8 +19,8 @@ var sudokuStorage = make(map[string]*Sudoku)
 
 // Request represents a request sent by the user
 type Request struct {
-	Grid   string `json:"grid"`
-	Hash   string `json:"hash"`
+	Grid string `json:"grid"`
+	Hash string `json:"hash"`
 }
 
 // NewSudokuHandler initializes a newSudokuHandler
@@ -30,11 +30,11 @@ func NewSudokuHandler(timeFunc func() time.Time) http.Handler {
 
 // JSON response for /newsudoku endpoint
 type newSudokuResponse struct {
-	Hash   string `json:"hash"`
-	Error  string `json:"error"`
+	Hash  string `json:"hash"`
+	Error string `json:"error"`
 }
 
-type newSudokuHandler struct{
+type newSudokuHandler struct {
 	// timeFunc is used to determine a time.Time object which
 	// we will use to generate as a seed to generate unique hashes
 	timeFunc func() time.Time
@@ -58,7 +58,7 @@ func NewSolveHandler() http.Handler { return solveHandler{} }
 
 // JSON response for /solve endpoint
 type solveResponse struct {
-	Error  string `json:"error"`
+	Error string `json:"error"`
 }
 
 type solveHandler struct{}

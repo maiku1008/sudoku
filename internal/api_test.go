@@ -11,13 +11,13 @@ import (
 )
 
 const (
-	requestNewSudoku = "{\"grid\":\"400000805030000000000700000020000060000080400000010000000603070500200000104000000\"}"
+	requestNewSudoku  = "{\"grid\":\"400000805030000000000700000020000060000080400000010000000603070500200000104000000\"}"
 	responseNewSudoku = "{\"hash\":\"TVAXF\",\"error\":\"None\"}\n"
-	requestSolve = "{\"hash\":\"TVAXF\"}"
-	responseSolve = "{\"error\":\"None\"}\n"
-	requestState = "{\"hash\":\"TVAXF\"}"
-	responseState = "{\"grid\":\"417369825632158947958724316825437169791586432346912758289643571573291684164875293\",\"solved\":true,\"error\":\"None\"}\n"
-	requestWrongHash = "{\"hash\":\"EMASO\"}"
+	requestSolve      = "{\"hash\":\"TVAXF\"}"
+	responseSolve     = "{\"error\":\"None\"}\n"
+	requestState      = "{\"hash\":\"TVAXF\"}"
+	responseState     = "{\"grid\":\"417369825632158947958724316825437169791586432346912758289643571573291684164875293\",\"solved\":true,\"error\":\"None\"}\n"
+	requestWrongHash  = "{\"hash\":\"EMASO\"}"
 	responseWrongHash = "{\"grid\":\"\",\"solved\":false,\"error\":\"Sudoku not found\"}\n"
 )
 
@@ -36,14 +36,14 @@ func Mux() *http.ServeMux {
 
 // A struct for testing the different endpoints, and their expected responses
 var endpointTests = []struct {
-	request string
+	request  string
 	endpoint string
 	response string
 }{
 	{requestNewSudoku, "/newsudoku", responseNewSudoku},
-	{requestSolve, "/solve",responseSolve},
-	{requestState, "/state",responseState},
-	{requestWrongHash, "/state",responseWrongHash},
+	{requestSolve, "/solve", responseSolve},
+	{requestState, "/state", responseState},
+	{requestWrongHash, "/state", responseWrongHash},
 }
 
 func TestEndPoints(t *testing.T) {
