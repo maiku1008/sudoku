@@ -160,6 +160,12 @@ docker run -d -p 8080:8080 sudoku
 
 You can then access the described API via localhost:8080
 
+## TODO:
+- Implement [cobra](https://github.com/spf13/cobra) for cli application
+- Use alternative storage for hashes, like [boltdb](https://github.com/boltdb/bolt)
+- Refactor to use a `cmd/` folder
+- Further clean up main code
+
 ---
 
 This project was inspired by Peter Norvig's [blog post](https://norvig.com/sudoku.html).
