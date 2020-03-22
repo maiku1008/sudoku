@@ -8,13 +8,12 @@ It uses [Constraint Propagation](https://en.wikipedia.org/wiki/Constraint_satisf
 ## Representation
 
 We represent a puzzle with a 81 character long string.
-It can use "." to represent an unknown value:
+It can use "." or "0" to represent an unknown value:
 
-`..5...987.4..5...1..7......2...48....9.1.....6..2.....3..6..2.......9.7.......5..`
-
-or a "0":
-
-`600302000040000010000000000702600000000000054300000000080150000000040200000000700`
+```
+..5...987.4..5...1..7......2...48....9.1.....6..2.....3..6..2.......9.7.......5..
+600302000040000010000000000702600000000000054300000000080150000000040200000000700
+```
 
 Some examples are included in the text files in this repository.
 
@@ -22,7 +21,7 @@ Some examples are included in the text files in this repository.
 Build with:
 
 ```
-go build sudoku_solver.go
+go build cmd/sudoku/sudoku.go
 ```
 
 Test with:
@@ -34,10 +33,10 @@ go test -v ./internal
 
 We have several options to interface with the application.
 
-Run with `-s` flag to solve a single puzzle.
+Run with `--string` flag to solve a single puzzle.
 
 ```
-./sudoku_solver -s "..5...987.4..5...1..7......2...48....9.1.....6..2.....3..6..2.......9.7.......5.."
+./sudoku solve --string "..5...987.4..5...1..7......2...48....9.1.....6..2.....3..6..2.......9.7.......5.."
 ```
 
 Output:
@@ -74,21 +73,22 @@ Solved:  13542698784695732192738146521374865959816374267429581335167429848253917
 Solved in:  11.149529ms
 ```
 
-Run with `-f filename.txt` for resolving the puzzles in each of the lines of the txt file
+Run with `--file <filename>` for resolving the puzzles in each of the lines of the file.
 ```
-./sudoku_solver -f puzzles_medium.txt
+./sudoku solve --file puzzles_medium.txt
 ```
 
 ## API
 
-Run with `-server` flag to run a local webserver exposing API endpoints which wrap sudoku's main functions; useful for creating a full stack web application.
+Run with `server` command to run a local webserver exposing API endpoints which wrap sudoku's main functions;  
+useful for creating a full stack web application.
 
 ```
-./sudoku_solver -server
+./sudoku server
 Starting the server on port: 8080
 ```
 
-## Endpoints
+## API Endpoints
 ### /newsudoku
 Calls the NewSudoku() method with `grid` as its argument.
 Returns a `hash` that identifies the Sudoku object.
@@ -161,10 +161,16 @@ docker run -d -p 8080:8080 sudoku
 You can then access the described API via localhost:8080
 
 ## TODO:
-- Implement [cobra](https://github.com/spf13/cobra) for cli application
-- Use alternative storage for hashes, like [boltdb](https://github.com/boltdb/bolt)
-- Refactor to use a `cmd/` folder
+- Make file solver concurrent
+- Add validation when passing string or file
+- Give option to use different storage for storing hashes and sudoku objects
+- Give option to use different port when launching server
+- Use different methods for interacting with the API.
+    - POST for creating a new sudoku
+    - PATCH to solve
+    - GET for getting the state at <hashid>/state
 - Further clean up main code
+- Look into improving algorithms ?
 
 ---
 
