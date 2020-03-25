@@ -161,16 +161,13 @@ docker run -d -p 8080:8080 sudoku
 You can then access the described API via localhost:8080
 
 ## TODO:
-- Make file solver concurrent
 - Add validation when passing string or file
-- Give option to use different storage for storing hashes and sudoku objects
-- Give option to use different port when launching server
 - Use different methods for interacting with the API.
     - POST for creating a new sudoku
     - PATCH to solve
     - GET for getting the state at <hashid>/state
-- Further clean up main code
-- Look into improving algorithms ?
+- Give option to use different port when launching server
+- Give option to use different storage for storing hashes and sudoku objects
 
 ---
 

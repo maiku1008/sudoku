@@ -7,6 +7,7 @@ import (
 	sudoku "github.com/micuffaro/sudoku/internal"
 	"github.com/spf13/cobra"
 	"os"
+	"sync"
 	"time"
 )
 
@@ -74,21 +75,26 @@ func solveString(grid string) {
 	fmt.Println("Solved in: ", elapsed)
 }
 
-// TODO: make this concurrent for fun and for profit
 // Solve the sudoku puzzles found in a file
 func solveFile(path string) {
 	lines, err := readFile(path)
 	if err != nil {
 		panic(err)
 	}
+	var wg sync.WaitGroup
 
 	start := time.Now()
 	count := 0
 	for _, line := range lines {
-		solveString(line)
-		fmt.Println("---")
-		count++
+		wg.Add(1)
+		go func(l string) {
+			defer wg.Done()
+			solveString(l)
+			fmt.Println("---")
+			count++
+		}(line)
 	}
+	wg.Wait() // Wait for goroutines to finish
 	elapsed := time.Since(start)
 	fmt.Println("Solved", count, "Sudoku puzzles in", elapsed)
 }
