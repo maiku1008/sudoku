@@ -161,7 +161,6 @@ docker run -d -p 8080:8080 sudoku
 You can then access the described API via localhost:8080
 
 ## TODO:
-- Add validation when passing string or file
 - Use different methods for interacting with the API.
     - POST for creating a new sudoku
     - PATCH to solve

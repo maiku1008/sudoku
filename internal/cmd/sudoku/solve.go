@@ -7,6 +7,7 @@ import (
 	sudoku "github.com/micuffaro/sudoku/internal"
 	"github.com/spf13/cobra"
 	"os"
+	"strings"
 	"sync"
 	"time"
 )
@@ -25,6 +26,11 @@ var (
 				return errors.New("Requires something to solve!")
 			}
 
+			// Ensure we don't get more than one arg
+			if len(args) > 1 {
+				return errors.New("Too many arguments")
+			}
+
 			// Get the flag value
 			stringFlag, _ := cmd.Flags().GetBool("string")
 			fileFlag, _ := cmd.Flags().GetBool("file")
@@ -32,23 +38,25 @@ var (
 				return errors.New("Flags for string and file cannot both be true")
 			}
 
-			// TODO: Add Validator
-			// if myapp.IsValidColor(args[0]) {
-			//   return nil
-			// }
 			return nil
 		},
 		Run: func(cmd *cobra.Command, args []string) {
+			object := args[0]
 			stringFlag, _ := cmd.Flags().GetBool("string")
 			fileFlag, _ := cmd.Flags().GetBool("file")
 
-			if stringFlag && args[0] != "" {
-				solveString(args[0])
+			if stringFlag && object != "" {
+				if err := validateString(object); err != nil {
+					fmt.Println(err)
+					fmt.Println("Exiting...")
+					os.Exit(1)
+				}
+				solveString(object)
 				return
 			}
 
-			if fileFlag && args[0] != "" {
-				solveFile(args[0])
+			if fileFlag && object != "" {
+				solveFile(object)
 				return
 			}
 		},
@@ -120,4 +128,21 @@ func readFile(path string) ([]string, error) {
 		lines = append(lines, scanner.Text())
 	}
 	return lines, nil
+}
+
+func validateString(s string) error {
+
+	// Check length
+	if len(s) != 81 {
+		return errors.New("String has wrong length. Are you sure it's a sudoku puzzle?")
+	}
+
+	// Check if string contains digits and dots only
+	const validChars = "0123456789."
+	for _, val := range s {
+		if !strings.Contains(validChars, string(val)) {
+			return errors.New("String should only contain digits 0123456789 and dots .")
+		}
+	}
+	return nil
 }

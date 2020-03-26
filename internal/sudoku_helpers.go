@@ -30,7 +30,7 @@ func find(slice []index, val index) (int, bool) {
 	return -1, false
 }
 
-// isvalid is a helper function that determins if a value is ok to be parsed
+// isvalid is a helper function that determines if a value is ok to be parsed
 // into our sudoku grid.
 func isvalid(v string) bool {
 	char := strings.Contains(string(digits), string(v))
