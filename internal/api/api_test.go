@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"testing"
 	"time"
 
@@ -25,32 +26,32 @@ func Mux() *http.ServeMux {
 
 const (
 	// Valid request to /newsudoku
-	requestNewSudoku  = "{\"grid\":\"400000805030000000000700000020000060000080400000010000000603070500200000104000000\"}"
-	responseNewSudoku = "{\"hash\":\"TVAXF\",\"error\":\"None\"}\n"
+	requestNewSudoku  = `{"grid":"400000805030000000000700000020000060000080400000010000000603070500200000104000000"}`
+	responseNewSudoku = `{"hash":"TVAXF","error":"None"}`
 
-	// Invalid requests to /newsudoku : Invalid grid length
-	requestNewSudokuInvalidLength  = "{\"grid\":\"\"}"
-	responseNewSudokuInvalidLength = "{\"hash\":\"\",\"error\":\"Wrong length for sudoku grid\"}\n"
+	// Invalid request to /newsudoku : Invalid grid length
+	requestNewSudokuInvalidLength  = `{"grid":""}`
+	responseNewSudokuInvalidLength = `{"hash":"","error":"Grid has invalid length"}`
 
-	// Invalid requests to /newsudoku : Invalid characters in grid
-	requestNewSudokuInvalidCharacters  = "{\"grid\":\"ABCDEFGHIJKLMNOPQRSTUVWXYZ12345678901234567890123456789012345678901234567890ABCDE\"}"
-	responseNewSudokuInvalidCharacters = "{\"hash\":\"\",\"error\":\"Invalid characters in sudoku grid\"}\n"
+	// Invalid request to /newsudoku : Invalid characters in grid
+	requestNewSudokuInvalidCharacters  = `{"grid":"ABCDEFGHIJKLMNOPQRSTUVWXYZ12345678901234567890123456789012345678901234567890ABCDE"}`
+	responseNewSudokuInvalidCharacters = `{"hash":"","error":"Grid contains invalid characters"}`
 
 	// Valid request to /solve
-	requestSolve  = "{\"hash\":\"TVAXF\"}"
-	responseSolve = "{\"error\":\"None\"}\n"
+	requestSolve  = `{"hash":"TVAXF"}`
+	responseSolve = `{"error":"None"}`
 
 	// Invalid request to /solve : Provided hash doesnt exist in storage
-	requestSolveInvalidHash  = "{\"hash\":\"EMASO\"}"
-	responseSolveInvalidHash = "{\"error\":\"Sudoku not found\"}\n"
+	requestSolveInvalidHash  = `{"hash":"EMASO"}`
+	responseSolveInvalidHash = `{"error":"Sudoku not found"}`
 
 	// Valid request to /state
-	requestState  = "{\"hash\":\"TVAXF\"}"
-	responseState = "{\"grid\":\"417369825632158947958724316825437169791586432346912758289643571573291684164875293\",\"solved\":true,\"error\":\"None\"}\n"
+	requestState  = `{"hash":"TVAXF"}`
+	responseState = `{"grid":"417369825632158947958724316825437169791586432346912758289643571573291684164875293","solved":true,"error":"None"}`
 
 	// Invalid request to /state : Provided hash doesnt exist in storage
-	requestStateInvalidHash  = "{\"hash\":\"EMASO\"}"
-	responseStateInvalidHash = "{\"grid\":\"\",\"solved\":false,\"error\":\"Sudoku not found\"}\n"
+	requestStateInvalidHash  = `{"hash":"EMASO"}`
+	responseStateInvalidHash = `{"grid":"","solved":false,"error":"Sudoku not found"}`
 )
 
 // A struct for testing the different endpoints, and their expected responses
@@ -77,6 +78,8 @@ func TestEndPoints(t *testing.T) {
 		response := httptest.NewRecorder()
 		Mux().ServeHTTP(response, request)
 
-		assert.Equal(et.response, response.Body.String())
+		responseBody := strings.TrimSuffix(response.Body.String(), "\n")
+
+		assert.Equal(et.response, responseBody)
 	}
 }

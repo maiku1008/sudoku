@@ -15,7 +15,8 @@ const (
 )
 
 // sudokuStorage stores Sudoku objects
-// TODO: Figure out better storage, like mongodb
+// TODO: Figure out better storage, like mongodb/boltdb
+// Would be also cool to make this service entirely stateless
 var sudokuStorage = make(map[string]*sudoku.Sudoku)
 
 // Request represents a request sent by the user
@@ -44,13 +45,19 @@ type newSudokuHandler struct {
 func (h newSudokuHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	request := setRequest(r.Body)
-	s := sudoku.NewSudoku(request.Grid)
 
 	var response newSudokuResponse
-	response.Hash = getHash(h.timeFunc())
-	response.Error = NoError
 
-	sudokuStorage[response.Hash] = s // Store the sudoku object
+	err := ValidateString(request.Grid)
+	if err != nil {
+		response.Hash = ""
+		response.Error = fmt.Sprintf("%v", err)
+	} else {
+		s := sudoku.NewSudoku(request.Grid)
+		response.Hash = getHash(h.timeFunc())
+		response.Error = NoError
+		sudokuStorage[response.Hash] = s // Store the sudoku object
+	}
 	setResponse(w, response)
 }
 
