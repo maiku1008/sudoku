@@ -4,11 +4,11 @@ import (
 	"bufio"
 	"errors"
 	"fmt"
+	"github.com/micuffaro/sudoku/internal/api"
 	"github.com/micuffaro/sudoku/internal/sudoku"
 	"github.com/spf13/cobra"
 	"log"
 	"os"
-	"strings"
 	"sync"
 	"time"
 )
@@ -47,7 +47,7 @@ var (
 			fileFlag, _ := cmd.Flags().GetBool("file")
 
 			if stringFlag && object != "" {
-				if err := validateString(object); err != nil {
+				if err := api.ValidateString(object); err != nil {
 					fmt.Println(err)
 					fmt.Println("Exiting...")
 					os.Exit(1)
@@ -129,21 +129,4 @@ func readFile(path string) ([]string, error) {
 		lines = append(lines, scanner.Text())
 	}
 	return lines, nil
-}
-
-func validateString(s string) error {
-
-	// Check length
-	if len(s) != 81 {
-		return errors.New("String has wrong length. Are you sure it's a sudoku puzzle?")
-	}
-
-	// Check if string contains digits and dots only
-	const validChars = "0123456789."
-	for _, val := range s {
-		if !strings.Contains(validChars, string(val)) {
-			return errors.New("String should only contain digits 0123456789 and dots .")
-		}
-	}
-	return nil
 }

@@ -2,11 +2,13 @@ package api
 
 import (
 	"encoding/json"
+	"errors"
 	"io"
 	"io/ioutil"
 	"log"
 	"math/rand"
 	"net/http"
+	"strings"
 	"time"
 )
 
@@ -62,4 +64,22 @@ func randomString(len int) string {
 // Returns an int >= min, < max
 func randomInt(min, max int) int {
 	return min + rand.Intn(max-min)
+}
+
+// ValidateString takes a grid and validates it
+func ValidateString(grid string) error {
+
+	// Check length
+	if len(grid) != 81 {
+		return errors.New("Grid has invalid length")
+	}
+
+	// Check if string contains digits and dots only
+	const validChars = "0123456789."
+	for _, val := range grid {
+		if !strings.Contains(validChars, string(val)) {
+			return errors.New("Grid contains invalid characters")
+		}
+	}
+	return nil
 }
