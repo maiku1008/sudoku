@@ -88,6 +88,12 @@ useful for creating a full stack web application.
 Starting the server on port: 8080
 ```
 
+You may specify the port with the --port flag
+```
+./sudoku server --port 6969
+Starting the server on port: 6969
+```
+
 ## API Endpoints
 ### /newsudoku
 Calls the NewSudoku() method with `grid` as its argument.
@@ -165,8 +171,8 @@ You can then access the described API via localhost:8080
     - POST for creating a new sudoku
     - PATCH to solve
     - GET for getting the state at <hashid>/state
-- Give option to use different port when launching server
 - Give option to use different storage for storing hashes and sudoku objects
+- If I make a call to any endpoint with no json, the program just exits. find out why
 
 ---
 
