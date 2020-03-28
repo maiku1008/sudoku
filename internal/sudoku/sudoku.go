@@ -69,8 +69,8 @@ func (s *Sudoku) parse(grid string) {
 	}
 }
 
-// A helper function that returns true if the Sudoku is solved
-func (s *Sudoku) isSolved() bool {
+// IsSolved returns true if the Sudoku is solved
+func (s *Sudoku) IsSolved() bool {
 	for _, square := range s.grid {
 		if len(square) > 1 || !digits.contains(square) {
 			return false
@@ -187,7 +187,7 @@ func (s *Sudoku) Solve() error {
 		return err
 	}
 
-	if s.isSolved() {
+	if s.IsSolved() {
 		return nil
 	}
 	return s.search()
@@ -238,7 +238,7 @@ func (s *Sudoku) try(val value, i index) (*Sudoku, error) {
 	if err := sc.assign(val, i); err != nil {
 		return nil, err
 	}
-	if !sc.isSolved() {
+	if !sc.IsSolved() {
 		if err := sc.search(); err != nil {
 			return nil, err
 		}

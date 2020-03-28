@@ -2,7 +2,7 @@ package cmd
 
 import (
 	"fmt"
-	sudoku "github.com/micuffaro/sudoku/internal"
+	"github.com/micuffaro/sudoku/internal/api"
 	"github.com/spf13/cobra"
 	"log"
 	"net/http"
@@ -18,9 +18,9 @@ var (
 		Run: func(cmd *cobra.Command, args []string) {
 			port, _ := cmd.Flags().GetString("port")
 			mux := http.NewServeMux()
-			mux.Handle("/newsudoku", sudoku.NewSudokuHandler(time.Now))
-			mux.Handle("/solve", sudoku.NewSolveHandler())
-			mux.Handle("/state", sudoku.NewStateHandler())
+			mux.Handle("/newsudoku", api.NewSudokuHandler(time.Now))
+			mux.Handle("/solve", api.NewSolveHandler())
+			mux.Handle("/state", api.NewStateHandler())
 
 			fmt.Println("Starting the server on port:", port)
 			port = fmt.Sprintf(":%v", port)

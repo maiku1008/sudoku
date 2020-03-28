@@ -167,13 +167,12 @@ docker run -d -p 8080:8080 sudoku
 You can then access the described API via localhost:8080
 
 ## TODO:
+- Implement Echo api for fun and for profit
 - Use different methods for interacting with the API.
     - POST for creating a new sudoku
     - PATCH to solve
-    - GET for getting the state at <hashid>/state
+    - GET for getting the state at /state/<hashid>
 - Give option to use different storage for storing hashes and sudoku objects
-- Solve bug where sending empty request to /solve generates and stores a hash anyway :P
-    - write tests for the above
 
 ---
 

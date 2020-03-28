@@ -1,12 +1,14 @@
-package sudoku
+package api
 
 import (
 	"encoding/json"
+	"errors"
 	"io"
 	"io/ioutil"
 	"log"
 	"math/rand"
 	"net/http"
+	"strings"
 	"time"
 )
 
@@ -48,4 +50,36 @@ func setResponse(w http.ResponseWriter, response interface{}) {
 func getHash(t time.Time) string {
 	rand.Seed(t.UnixNano())
 	return randomString(5)
+}
+
+// Generate a random string of A-Z chars with len = l
+func randomString(len int) string {
+	bytes := make([]byte, len)
+	for i := 0; i < len; i++ {
+		bytes[i] = byte(randomInt(65, 90))
+	}
+	return string(bytes)
+}
+
+// Returns an int >= min, < max
+func randomInt(min, max int) int {
+	return min + rand.Intn(max-min)
+}
+
+// ValidateString takes a grid and validates it
+func ValidateString(grid string) error {
+
+	// Check length
+	if len(grid) != 81 {
+		return errors.New("Grid has invalid length")
+	}
+
+	// Check if string contains digits and dots only
+	const validChars = "0123456789."
+	for _, val := range grid {
+		if !strings.Contains(validChars, string(val)) {
+			return errors.New("Grid contains invalid characters")
+		}
+	}
+	return nil
 }

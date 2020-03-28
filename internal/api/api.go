@@ -1,7 +1,8 @@
-package sudoku
+package api
 
 import (
 	"fmt"
+	"github.com/micuffaro/sudoku/internal/sudoku"
 	"net/http"
 	"time"
 )
@@ -14,8 +15,9 @@ const (
 )
 
 // sudokuStorage stores Sudoku objects
-// TODO: Figure out better storage, like mongodb
-var sudokuStorage = make(map[string]*Sudoku)
+// TODO: Figure out better storage, like mongodb/boltdb
+// Would be also cool to make this service entirely stateless
+var sudokuStorage = make(map[string]*sudoku.Sudoku)
 
 // Request represents a request sent by the user
 type Request struct {
@@ -36,20 +38,25 @@ type newSudokuResponse struct {
 
 type newSudokuHandler struct {
 	// timeFunc is used to determine a time.Time object which
-	// we will use to generate as a seed to generate unique hashes
+	// we will use to generate a rand.seed
 	timeFunc func() time.Time
 }
 
 func (h newSudokuHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	request := setRequest(r.Body)
-	s := NewSudoku(request.Grid)
 
 	var response newSudokuResponse
-	response.Hash = getHash(h.timeFunc())
-	response.Error = NoError
 
-	sudokuStorage[response.Hash] = s // Store the sudoku object
+	err := ValidateString(request.Grid)
+	if err != nil {
+		response.Error = fmt.Sprintf("%v", err)
+	} else {
+		s := sudoku.NewSudoku(request.Grid)
+		response.Hash = getHash(h.timeFunc())
+		response.Error = NoError
+		sudokuStorage[response.Hash] = s // Store the sudoku object
+	}
 	setResponse(w, response)
 }
 
@@ -104,7 +111,7 @@ func (h stateHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	} else {
 		s := sudokuStorage[request.Hash]
 		response.Grid = s.DisplayString()
-		response.Solved = s.isSolved()
+		response.Solved = s.IsSolved()
 		response.Error = NoError
 	}
 	setResponse(w, response)
