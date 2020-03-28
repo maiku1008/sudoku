@@ -4,6 +4,7 @@ import (
 	"fmt"
 	sudoku "github.com/micuffaro/sudoku/internal"
 	"github.com/spf13/cobra"
+	"log"
 	"net/http"
 	"time"
 )
@@ -25,7 +26,7 @@ var (
 			port = fmt.Sprintf(":%v", port)
 			err := http.ListenAndServe(port, mux)
 			if err != nil {
-				panic(err)
+				log.Fatalf("Error starting server: %v", err)
 			}
 		},
 	}

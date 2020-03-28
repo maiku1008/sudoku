@@ -172,7 +172,8 @@ You can then access the described API via localhost:8080
     - PATCH to solve
     - GET for getting the state at <hashid>/state
 - Give option to use different storage for storing hashes and sudoku objects
-- If I make a call to any endpoint with no json, the program just exits. find out why
+- Solve bug where sending empty request to /solve generates and stores a hash anyway :P
+    - write tests for the above
 
 ---
 

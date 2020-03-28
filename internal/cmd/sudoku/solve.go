@@ -6,6 +6,7 @@ import (
 	"fmt"
 	sudoku "github.com/micuffaro/sudoku/internal"
 	"github.com/spf13/cobra"
+	"log"
 	"os"
 	"strings"
 	"sync"
@@ -87,7 +88,7 @@ func solveString(grid string) {
 func solveFile(path string) {
 	lines, err := readFile(path)
 	if err != nil {
-		panic(err)
+		log.Fatalf("Error reading file: %v", err)
 	}
 	var wg sync.WaitGroup
 

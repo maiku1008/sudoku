@@ -24,7 +24,7 @@ func setRequest(b io.ReadCloser) Request {
 	var request Request
 	err = json.Unmarshal(body, &request)
 	if err != nil {
-		log.Fatalf("Unmarshalling error: %v", err)
+		log.Printf("Unmarshalling error: %v", err)
 	}
 
 	return request
@@ -40,7 +40,7 @@ func setResponse(w http.ResponseWriter, response interface{}) {
 	// Encode the JSON
 	err := json.NewEncoder(w).Encode(response)
 	if err != nil {
-		log.Fatalf("Encoding error: %v", err)
+		log.Printf("Encoding error: %v", err)
 	}
 }
 
