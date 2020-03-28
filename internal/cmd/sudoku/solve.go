@@ -4,7 +4,7 @@ import (
 	"bufio"
 	"errors"
 	"fmt"
-	sudoku "github.com/micuffaro/sudoku/internal"
+	"github.com/micuffaro/sudoku/internal/sudoku"
 	"github.com/spf13/cobra"
 	"log"
 	"os"

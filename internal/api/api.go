@@ -1,7 +1,8 @@
-package sudoku
+package api
 
 import (
 	"fmt"
+	"github.com/micuffaro/sudoku/internal/sudoku"
 	"net/http"
 	"time"
 )
@@ -15,7 +16,7 @@ const (
 
 // sudokuStorage stores Sudoku objects
 // TODO: Figure out better storage, like mongodb
-var sudokuStorage = make(map[string]*Sudoku)
+var sudokuStorage = make(map[string]*sudoku.Sudoku)
 
 // Request represents a request sent by the user
 type Request struct {
@@ -43,7 +44,7 @@ type newSudokuHandler struct {
 func (h newSudokuHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	request := setRequest(r.Body)
-	s := NewSudoku(request.Grid)
+	s := sudoku.NewSudoku(request.Grid)
 
 	var response newSudokuResponse
 	response.Hash = getHash(h.timeFunc())
@@ -104,7 +105,7 @@ func (h stateHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	} else {
 		s := sudokuStorage[request.Hash]
 		response.Grid = s.DisplayString()
-		response.Solved = s.isSolved()
+		response.Solved = s.IsSolved()
 		response.Error = NoError
 	}
 	setResponse(w, response)

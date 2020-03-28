@@ -112,8 +112,8 @@ func TestNewSudoku(t *testing.T) {
 func TestIsSolved(t *testing.T) {
 	assert := assert.New(t)
 
-	assert.False(NewSudoku(veryhardpuzzle).isSolved())
-	assert.True(NewSudoku(solvedpuzzle).isSolved())
+	assert.False(NewSudoku(veryhardpuzzle).IsSolved())
+	assert.True(NewSudoku(solvedpuzzle).IsSolved())
 }
 
 func TestSolve(t *testing.T) {
@@ -132,7 +132,7 @@ func TestSolve(t *testing.T) {
 		s := NewSudoku(p.puzzleToSolve)
 		err := s.Solve()
 		assert.Nil(err)
-		assert.True(s.isSolved())
+		assert.True(s.IsSolved())
 	}
 
 	s := NewSudoku(impossiblepuzzle)
